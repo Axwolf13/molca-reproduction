@@ -1,0 +1,11 @@
+queue    : baseline_graphfirst shuffle_graph_graphfirst
+molecules: 250 batches x 4
+started  : 2026-08-31 15:26:58
+
+[15:26:58] START baseline_graphfirst
+[16:09:33] FAIL  baseline_graphfirst  see logs/baseline_graphfirst.log  (42 min)
+
+[16:09:33] START shuffle_graph_graphfirst
+[16:28:53] FAIL  shuffle_graph_graphfirst see logs/shuffle_graph_graphfirst.log  (19 min)
+
+queue finished: 2026-08-31 16:28:53

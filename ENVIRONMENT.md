@@ -1,0 +1,105 @@
+# Reproducing This Environment
+
+`pip freeze` alone will not rebuild this setup. Because I vendored one
+dependency (`lavis`) rather than installing it, a fresh virtualenv built purely
+from `results/environment_local_win.txt` fails immediately at
+`ModuleNotFoundError: No module named 'lavis'`. The full recipe follows.
+
+## Why the Published Pins No Longer Build
+
+MolCA's `environment.yml` targets 2023: torch 2.0.0 with CUDA 11.7, Python 3.8,
+transformers 4.28.1, pytorch-lightning 1.9.0, alongside `salesforce-lavis` and
+`flash-attn 1.0.5`. On Python 3.13 that chain is unbuildable.
+
+| Pin | Failure |
+|---|---|
+| `numpy<2` | No cp313 wheel exists. The source build invokes Meson, which crashed on the non-ASCII path (`Universität`) |
+| `tokenizers<0.20` | No cp313 wheel, which makes `transformers==4.44.2` uninstallable |
+| `transformers>=5` | Dropped `transformers.file_utils`, imported by LAVIS's `Qformer.py` |
+| `salesforce-lavis` | `lavis/__init__.py` imports the entire model zoo, pulling in spacy, decord, timm, fairscale, and opencv |
+
+Squeezed between those constraints, `transformers==4.46.3` is the only version
+carrying cp313 wheels while still shipping `file_utils`.
+
+## Installation
+
+```bash
+python3.13 -m venv molca_venv
+molca_venv/Scripts/python.exe -m pip install torch --index-url https://download.pytorch.org/whl/cu126
+molca_venv/Scripts/python.exe -m pip install --only-binary=:all: \
+    numpy "transformers==4.46.3" "peft==0.13.2" "pytorch-lightning==2.3.3" \
+    torch-geometric rdkit nltk scikit-learn networkx pandas pyyaml tqdm
+molca_venv/Scripts/python.exe -m pip install ogb rouge_score iopath "omegaconf>=2.3"
+molca_venv/Scripts/python.exe -c "import nltk; [nltk.download(r, quiet=True) for r in ('wordnet','punkt','punkt_tab','omw-1.4')]"
+```
+
+Although LAVIS pins `omegaconf` at 2.0, you must install 2.3 or later.
+Lightning's CSV logger calls `OmegaConf.save`, which on 2.0 raises inside the
+*exception handler*, masking whatever the real error was.
+
+## The Vendored LAVIS
+
+MolCA touches six symbols from LAVIS. Importing any one of them executes
+`lavis/__init__.py`, which in turn imports every model LAVIS ships. Rather than
+install that dependency tree, I vendored the package from
+`salesforce_lavis-1.0.2-py3-none-any.whl` under `vendor/lavis/` and applied four
+edits.
+
+| File | Edit | Reason |
+|---|---|---|
+| `lavis/__init__.py` | Emptied | Imported the datasets, models, processors, and tasks zoo |
+| `lavis/models/__init__.py` | Emptied | Same |
+| `lavis/models/blip2_models/blip2.py` | Made `create_eva_vit_g` and `create_clip_vit_L` lazy | Pulled in timm and fairscale, although MolCA never calls `init_vision_encoder` |
+| `lavis/common/utils.py` | Made the torchvision import optional | Used only by dataset-download helpers |
+| `lavis/common/dist_utils.py` | Made the timm import optional | Used only to download ViT weights |
+
+I altered nothing on MolCA's execution path. Every edit targets a module-level
+import that would otherwise force an unrelated dependency. The Q-Former
+implementation in `Qformer.py`, all 1216 lines of it, stays byte-identical to
+the release, which matters because the checkpoint's weights are keyed to it.
+
+**Every run must point `PYTHONPATH` at the `vendor/` directory.** While
+`run_eval.sh` handles this, a bare `python stage2.py` will not find `lavis`.
+
+## Assets
+
+| Asset | Source | Size |
+|---|---|---|
+| `chebi.ckpt` | `acharkq/MolCA` at `archived/chebi.ckpt` | 1.28 GB |
+| `chebi_lora/` | `acharkq/MolCA` at `archived/chebi_lora/` | 50 MB |
+| `stage1.ckpt` | `acharkq/MolCA` at `stage1.ckpt` | 2.15 GB |
+| `galactica-1.3b` | `facebook/galactica-1.3b` | 2.63 GB |
+| ChEBI-20 | `data/dataset.zip`, shipped in the repo | 3300 test rows |
+
+The README documents these under `all_checkpoints/share/`, a directory absent
+from the released repository. The files actually sit under `archived/` and at
+the repository root.
+
+## Hardware Notes
+
+I ran everything on an RTX 4060 Laptop with 8 GB of VRAM, which constrains the
+configuration in two ways worth recording.
+
+**Generation batch size caps at 4.** Batches of 6, 8, 16, and 24 all exhaust
+memory during five-beam search. Counterintuitively, batch 4 runs *faster* per
+molecule than batch 8 appeared to, because batch 8 only ever seemed to fit by
+oversubscribing into system RAM.
+
+**Set a hard memory cap.** Windows WDDM permits a process to spill VRAM into
+system RAM instead of raising OOM. An oversized batch therefore does not fail;
+it thrashes. I measured throughput collapsing from 0.37 it/s to 0.03 it/s before
+system RAM ran out and the machine froze. Exporting `MOLCA_MEM_FRAC=0.90`
+converts that silent death spiral into an immediate, diagnosable OOM. After
+applying the cap, the same loop ran at 6.30 it/s.
+
+## Source Modifications
+
+`apply_patches.py` applies every change and remains idempotent across repeated
+runs. Running `git diff` inside `MolCA/` reproduces the exact change set.
+
+| Group | Count | Purpose |
+|---|---|---|
+| A | 6 | Portability |
+| B | 4 | Ablation harness |
+| C | 2 | Harness convenience |
+| D | 3 | Retrieval path |

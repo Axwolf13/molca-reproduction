@@ -1,0 +1,317 @@
+{
+  "n": 1000,
+  "runs": [
+    "graph-only",
+    "normal",
+    "null-graph",
+    "rewired-graph",
+    "shuffled-SMILES",
+    "shuffled-graph",
+    "shuffled-graph+no-SMILES",
+    "shuffled-graph-rev"
+  ],
+  "ngram": {
+    "BLEU-2|normal": {
+      "graph": 58.407814815396605,
+      "smiles": 58.407814815396605,
+      "floor": 25.894828919068846
+    },
+    "BLEU-2|shuffled-graph": {
+      "graph": 45.911406687039005,
+      "smiles": 28.802323883368956,
+      "floor": 26.161188750547264
+    },
+    "BLEU-2|shuffled-graph-rev": {
+      "graph": 47.13979263998841,
+      "smiles": 29.319454256475208,
+      "floor": 25.910306555062405
+    },
+    "BLEU-2|shuffled-SMILES": {
+      "graph": 47.147719408741686,
+      "smiles": 29.342918400046266,
+      "floor": 25.81938207104651
+    },
+    "BLEU-2|shuffled-graph+no-SMILES": {
+      "graph": 0.0001396701081509358,
+      "smiles": null,
+      "floor": 0.00027934021630187105
+    },
+    "BLEU-2|rewired-graph": {
+      "graph": null,
+      "smiles": 23.273511342598276,
+      "floor": 21.099598046951154
+    },
+    "BLEU-2|graph-only": {
+      "graph": 0.00013982759254494462,
+      "smiles": null,
+      "floor": 0.00019774607777103993
+    },
+    "BLEU-2|null-graph": {
+      "graph": null,
+      "smiles": 29.234406238459883,
+      "floor": 24.53022647175525
+    },
+    "BLEU-4|normal": {
+      "graph": 47.70244192079481,
+      "smiles": 47.70244192079481,
+      "floor": 13.836964600033975
+    },
+    "BLEU-4|shuffled-graph": {
+      "graph": 34.122467827657985,
+      "smiles": 16.38166783392307,
+      "floor": 13.905508741362501
+    },
+    "BLEU-4|shuffled-graph-rev": {
+      "graph": 35.04222538872677,
+      "smiles": 16.75292366548584,
+      "floor": 13.66234824471153
+    },
+    "BLEU-4|shuffled-SMILES": {
+      "graph": 35.04973864578417,
+      "smiles": 16.77293328150058,
+      "floor": 13.653916252977053
+    },
+    "BLEU-4|shuffled-graph+no-SMILES": {
+      "graph": 7.887910175873668e-05,
+      "smiles": null,
+      "floor": 0.00011155189549501297
+    },
+    "BLEU-4|rewired-graph": {
+      "graph": null,
+      "smiles": 12.559270258686063,
+      "floor": 10.726139388931145
+    },
+    "BLEU-4|graph-only": {
+      "graph": 7.896851205742986e-05,
+      "smiles": null,
+      "floor": 9.390991639987363e-05
+    },
+    "BLEU-4|null-graph": {
+      "graph": null,
+      "smiles": 16.693687648523245,
+      "floor": 12.722443471153339
+    },
+    "ROUGE-L|normal": {
+      "graph": 63.50044666703688,
+      "smiles": 63.50044666703688,
+      "floor": 28.820476158931402
+    },
+    "ROUGE-L|shuffled-graph": {
+      "graph": 50.816602235933,
+      "smiles": 31.873179300789666,
+      "floor": 29.05420504397099
+    },
+    "ROUGE-L|shuffled-graph-rev": {
+      "graph": 51.41212264230122,
+      "smiles": 32.2803362577906,
+      "floor": 28.736920860991944
+    },
+    "ROUGE-L|shuffled-SMILES": {
+      "graph": 51.42398286271765,
+      "smiles": 32.29908176614672,
+      "floor": 28.555780089111533
+    },
+    "ROUGE-L|shuffled-graph+no-SMILES": {
+      "graph": 0.02767492392556148,
+      "smiles": null,
+      "floor": 0.02511300323400336
+    },
+    "ROUGE-L|rewired-graph": {
+      "graph": null,
+      "smiles": 30.061209529910794,
+      "floor": 27.037666654862104
+    },
+    "ROUGE-L|graph-only": {
+      "graph": 0.027576461898417816,
+      "smiles": null,
+      "floor": 0.018255791190503863
+    },
+    "ROUGE-L|null-graph": {
+      "graph": null,
+      "smiles": 33.99590978970799,
+      "floor": 28.503195737016643
+    },
+    "METEOR|normal": {
+      "graph": 61.8367514541391,
+      "smiles": 61.8367514541391,
+      "floor": 27.7220308365185
+    },
+    "METEOR|shuffled-graph": {
+      "graph": 49.446438225402304,
+      "smiles": 31.796617687156658,
+      "floor": 28.67982986680465
+    },
+    "METEOR|shuffled-graph-rev": {
+      "graph": 50.24453019245385,
+      "smiles": 31.857276837879805,
+      "floor": 28.204465505870736
+    },
+    "METEOR|shuffled-SMILES": {
+      "graph": 50.23909442077447,
+      "smiles": 31.90731770402215,
+      "floor": 27.958975064190724
+    },
+    "METEOR|shuffled-graph+no-SMILES": {
+      "graph": 0.017013939738337397,
+      "smiles": null,
+      "floor": 0.0192588963514137
+    },
+    "METEOR|rewired-graph": {
+      "graph": null,
+      "smiles": 26.167985792527617,
+      "floor": 23.63412318392681
+    },
+    "METEOR|graph-only": {
+      "graph": 0.017723749692324986,
+      "smiles": null,
+      "floor": 0.009093724436275003
+    },
+    "METEOR|null-graph": {
+      "graph": null,
+      "smiles": 32.788295953717665,
+      "floor": 27.403677128083253
+    }
+  },
+  "class_f1": {
+    "exact|normal": {
+      "graph": 39.769820971867006,
+      "smiles": 39.769820971867006,
+      "floor": 0.25575447570332477
+    },
+    "exact|shuffled-graph": {
+      "graph": 17.92195278625341,
+      "smiles": 2.1840372571061506,
+      "floor": 0.19270916974466035
+    },
+    "exact|shuffled-graph-rev": {
+      "graph": 17.86457499599808,
+      "smiles": 1.8889066752040982,
+      "floor": 0.3201536737634065
+    },
+    "exact|shuffled-SMILES": {
+      "graph": 17.946257197696735,
+      "smiles": 1.8873960332693538,
+      "floor": 0.2879078694817658
+    },
+    "exact|shuffled-graph+no-SMILES": {
+      "graph": 0.0,
+      "smiles": null,
+      "floor": 0.0
+    },
+    "exact|rewired-graph": {
+      "graph": null,
+      "smiles": 1.898222940226171,
+      "floor": 0.16155088852988692
+    },
+    "exact|graph-only": {
+      "graph": 0.0,
+      "smiles": null,
+      "floor": 0.0
+    },
+    "exact|null-graph": {
+      "graph": null,
+      "smiles": 3.8336470990929317,
+      "floor": 0.23960294369330823
+    },
+    "contain|normal": {
+      "graph": 44.72506393861892,
+      "smiles": 44.72506393861892,
+      "floor": 0.7033248081841432
+    },
+    "contain|shuffled-graph": {
+      "graph": 23.51051870884856,
+      "smiles": 3.0833467159145656,
+      "floor": 0.5138911193190941
+    },
+    "contain|shuffled-graph-rev": {
+      "graph": 23.27517208259965,
+      "smiles": 2.881383063870658,
+      "floor": 0.6082919801504723
+    },
+    "contain|shuffled-SMILES": {
+      "graph": 23.352527191298783,
+      "smiles": 2.8790786948176583,
+      "floor": 0.7037747920665387
+    },
+    "contain|shuffled-graph+no-SMILES": {
+      "graph": 0.0,
+      "smiles": null,
+      "floor": 0.0
+    },
+    "contain|rewired-graph": {
+      "graph": null,
+      "smiles": 3.109854604200323,
+      "floor": 0.2827140549273021
+    },
+    "contain|graph-only": {
+      "graph": 0.0,
+      "smiles": null,
+      "floor": 0.0
+    },
+    "contain|null-graph": {
+      "graph": null,
+      "smiles": 5.202806777340408,
+      "floor": 0.41074790347424267
+    },
+    "jaccard|normal": {
+      "graph": 50.863171355498714,
+      "smiles": 50.863171355498714,
+      "floor": 1.0549872122762147
+    },
+    "jaccard|shuffled-graph": {
+      "graph": 27.26834751886944,
+      "smiles": 4.046892564637868,
+      "floor": 0.8350730688935281
+    },
+    "jaccard|shuffled-graph-rev": {
+      "graph": 27.213062269889548,
+      "smiles": 3.8098287177845367,
+      "floor": 1.0565071234192414
+    },
+    "jaccard|shuffled-SMILES": {
+      "graph": 27.319257837492007,
+      "smiles": 3.80678182981446,
+      "floor": 0.9916826615483046
+    },
+    "jaccard|shuffled-graph+no-SMILES": {
+      "graph": 0.0,
+      "smiles": null,
+      "floor": 0.0
+    },
+    "jaccard|rewired-graph": {
+      "graph": null,
+      "smiles": 4.119547657512117,
+      "floor": 0.444264943457189
+    },
+    "jaccard|graph-only": {
+      "graph": 0.0,
+      "smiles": null,
+      "floor": 0.0
+    },
+    "jaccard|null-graph": {
+      "graph": null,
+      "smiles": 6.743111415368817,
+      "floor": 0.7530378230361116
+    }
+  },
+  "per_example": {
+    "shuffled-graph": {
+      "follows GRAPH": 468,
+      "neither": 443,
+      "follows SMILES": 60,
+      "both": 29
+    },
+    "shuffled-graph-rev": {
+      "follows GRAPH": 463,
+      "neither": 461,
+      "follows SMILES": 47,
+      "both": 29
+    },
+    "shuffled-SMILES": {
+      "neither": 460,
+      "follows GRAPH": 464,
+      "follows SMILES": 47,
+      "both": 29
+    }
+  }
+}

@@ -1,0 +1,6 @@
+# Shell scripts must keep LF or they will not run on Linux (e.g. the HPC cluster).
+*.sh   text eol=lf
+*.py   text eol=lf
+*.diff text eol=lf
+# Prediction files are data: leave bytes untouched.
+*.jsonl -text

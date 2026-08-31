@@ -1,0 +1,206 @@
+# Does the Graph Channel Matter?
+
+### A Reproducibility and Modality-Conflict Study of MolCA
+
+**Akshay Ashok** (7071170)
+Seminar: Machine Learning for Language Processing, Saarland University
+Supervisor: Prof. Dietrich Klakow
+
+---
+
+## What I Tested
+
+[MolCA](https://github.com/acharkq/MolCA) (Liu et al., EMNLP 2023) wires a 2D
+molecular graph encoder into Galactica through a Q-Former cross-modal projector.
+Its Table 5a measures what each input view contributes during *training*,
+reporting 34.6 BLEU-2 for SMILES alone, 34.5 for the graph alone, and 38.7 for
+both together. Read on its own, that table suggests two interchangeable views
+combining for a modest gain.
+
+The paper never measures what the trained model does with those two views at
+*inference*. I closed that gap by putting the channels into direct conflict on
+the released checkpoint, feeding each molecule its own SMILES string alongside a
+different molecule's graph.
+
+## Headline Results
+
+### Reproduction
+
+Running the released checkpoint over the full 3300-molecule CheBI-20 test split:
+
+| Source | BLEU-2 |
+|---|---|
+| Paper, Table 2b | 62.0 |
+| Tesla P100 (cluster) | 62.32 |
+| RTX 4060 Laptop (local) | **62.77** |
+
+Three measurements of one checkpoint span 0.77 BLEU-2 across two GPU
+generations, two Python versions, two torch majors, and a precision change from
+bf16 to fp16. Because I also hand-vendored LAVIS rather than installing it, the
+software stack differs substantially between the two machines.
+
+### The Central Finding
+
+Handing a molecule its own SMILES together with a different molecule's graph, I
+found the model describes the *other* molecule:
+
+```
+its own SMILES describes : a steroid ester, methyl (17E)-pregna-4,17-dien-21-oate
+the graph it was given   : a branched amino tetrasaccharide
+the model wrote          : "The molecule is a branched amino tetrasaccharide ..."
+```
+
+Across 1000 molecules, roughly 90% of decisive cases assert the chemical class
+of the molecule that supplied the **graph**. Measured as class-agreement F1
+against a near-zero floor, the ratio runs about 9:1.
+
+| Manipulation | Cost in BLEU-2 |
+|---|---|
+| Substituting the graph | **36.9** |
+| Substituting the SMILES | 14.6 |
+
+Corrupting the graph therefore costs roughly 2.5 times what corrupting the text
+costs, under a matched manipulation applied to each channel.
+
+### The Model Trusts the Graph Rather Than Hedging
+
+| Graph condition | BLEU-2 |
+|---|---|
+| Uninformative (atom features zeroed) | 28.19 |
+| Wrong (a different real molecule) | 25.71 |
+| Incoherent (edges resampled at random) | 20.46 |
+
+A wrong graph hurts more than no graph at all. Were the graph a weak side
+channel, feeding it garbage would cost no more than feeding it nothing.
+Since it costs considerably more, the language model treats those eight soft
+prompts as authoritative evidence rather than as advice.
+
+Full numbers, controls, and limitations live in
+**[results/RESULTS.md](results/RESULTS.md)**.
+
+## Repository Layout
+
+| Path | Contents |
+|---|---|
+| `apply_patches.py` | 14 idempotent source patches across four groups |
+| `analyse.py` | n-gram agreement, chemical-class agreement, per-example verdicts |
+| `run_eval.sh` | A single condition |
+| `run_queue.sh` | Several conditions back to back |
+| `supervise.sh` | Resumable supervisor that skips finished conditions and retries failures |
+| `run_fullset.sh` | The 3300-molecule runs |
+| `run_promptorder.sh` | The position-versus-modality test |
+| `run_retrieval.sh` | Stage-1 retrieval |
+| `ENVIRONMENT.md` | Environment recipe, plus why the paper's pins no longer build |
+| `patches/molca.diff` | The resulting diff against `acharkq/MolCA` at `f728a47` |
+| `results/predictions/` | 11 prediction files, one per condition, as JSONL |
+| `results/logs/` | Run logs with progress bars stripped and repeats collapsed |
+| `vendor/lavis/` | Minimal vendored LAVIS, BSD-3-Clause, licence retained |
+
+Checkpoints, model weights, datasets, and the virtualenv stay out of the
+repository. `ENVIRONMENT.md` explains how to obtain each one.
+
+## Reproducing
+
+```bash
+git clone https://github.com/acharkq/MolCA          # upstream, at f728a47
+python apply_patches.py                             # idempotent
+./run_eval.sh baseline                              # or any condition below
+python analyse.py
+```
+
+Available conditions:
+
+- `baseline`, `baseline_full`
+- `shuffle_graph`, `shuffle_graph_rev`, `shuffle_graph_full`
+- `shuffle_smiles`
+- `rewire_graph`, `null_graph`
+- `graph_only`, `shuffle_graph_only`
+- `baseline_graphfirst`, `shuffle_graph_graphfirst`
+
+Every intervention lives inside `InferenceCollater` and stays inert unless its
+environment variable is set, which leaves training collation untouched.
+
+## What I Found in the Released Code
+
+### Portability
+
+MolCA assumes the authors' rig: two A100s, bf16, an initialised
+`torch.distributed` process group. Each assumption fails somewhere different on
+a single consumer GPU. Two of them discard work *after* it has already finished.
+
+| ID | Problem | Consequence |
+|---|---|---|
+| A1 | Checkpoints carry `cuda:4` device tags | Unpickling fails on a single-GPU machine |
+| A2 | `blip2_opt.py` hardcodes bf16 in two of three branches | Dtype mismatch on cards without bf16 support |
+| A3 | `all_gather_object` runs unguarded in the eval hook | A finished two-hour run gets thrown away at the last step |
+| A4 | `dist.get_rank()` runs unguarded in the stage-1 loss | Same root cause |
+| A5 | `persistent_workers=True` hardcoded across four datamodules | Illegal whenever `num_workers=0` |
+
+Three further issues fall outside that table:
+
+- `val_dataloader` uses `batch_size` rather than `inference_batch_size`. On an
+  8 GB card under Windows WDDM, the oversized batch spills silently into system
+  RAM instead of raising OOM. Throughput collapsed to 0.03 it/s before the
+  machine froze outright.
+- The README points at `all_checkpoints/share/`, a path absent from the release.
+  The files actually sit under `archived/`.
+- `stage2_chebi_dm.py` lacks the `graph_only` option that its `stage2_dm.py`
+  sibling exposes. Three `if False:` branches in `stage1_dm.py` misdirect
+  debugging further.
+
+### Retrieval: Two Real Bugs, Fixed but Not Measured
+
+`stage1.py` routes on the root path. Because `--root data/kv_data` contains the
+substring `kv`, every documented retrieval command takes the `Stage1KVPLMDM`
+branch.
+
+1. **`Stage1KVPLMDM` never receives a tokenizer.** Grepping the file for
+   `tokenizer` returns zero hits, yet it builds `GINPretrainDataset`, whose
+   `tokenizer_text()` calls `self.tokenizer(...)`. Since `trainer.validate()`
+   iterates precisely that dataset, every documented retrieval command dies. A
+   suitable tokenizer sits in scope one line above the call.
+2. **torch 2.6 flipped the `weights_only` default in `torch.load` to `True`**,
+   which rejects the pickled PyG graph objects the dataset stores. This stayed
+   invisible on the authors' torch 2.0. It also stayed invisible throughout
+   captioning, because ChEBI-20 ships `.txt` files while `kv_data` ships
+   pre-pickled `.pt` graphs.
+
+I patched both, then verified the data path end to end. The evaluation itself
+never completed: two re-ranking passes per split, at 13.4 s per iteration over
+750 iterations, works out to roughly 11 GPU-hours for both splits.
+
+## Honest Limitations
+
+I am keeping these visible because they change how the results should be read.
+
+- **`shuffle_smiles` is not the independent control I designed it to be.**
+  Rotating the graph by minus one and rotating the SMILES by plus one produce
+  the same pairing. After re-indexing, 983 of 1000 predictions match exactly.
+  It functions as a two-code-path consistency check rather than as extra
+  evidence, which leaves eight conditions covering seven distinct manipulations.
+- **The position-versus-modality test failed as an instrument.** Since the graph
+  prompts sit nearest the generation point, "the graph dominates" stays
+  confounded with "the nearest channel dominates". Because moving the prompts
+  ahead of the SMILES collapses the model from 63.16 to 0.01 BLEU-2, the
+  reordering cannot separate the two explanations. That confound remains open.
+- **The chemical-class extractor has a ceiling.** Built on regular expressions
+  over ChEBI's stereotyped phrasing, it registers a match on only 76.3% of
+  *correct* baseline captions. Absolute per-example rates are therefore
+  underestimates, although ratios between conditions hold.
+- **`results/logs/baseline_graphfirst.log` is nearly empty.** That run's Python
+  process finished and wrote all 1000 predictions. Its shell wrapper broke
+  mid-run when `run_eval.sh` was edited while bash was still reading it. I
+  rescored the predictions afterwards using MolCA's own scorer.
+- **MolCA's `caption_evaluate` silently ignores its truncation settings.** It
+  passes `truncation`, `max_length`, and `padding` into `tokenizer.tokenize()`,
+  which accepts none of them. Transformers warns once per batch before
+  discarding them, leaving the intended 512-token truncation inoperative.
+
+## Licence
+
+This work carries the MIT licence, recorded in `LICENSE`. The `vendor/lavis/`
+directory holds a minimal subset of
+[Salesforce LAVIS](https://github.com/salesforce/LAVIS) under BSD-3-Clause, with
+its licence file and SPDX headers retained. `ENVIRONMENT.md` documents every
+modification I made to it. MolCA itself is not redistributed here, only a patch
+against it.
