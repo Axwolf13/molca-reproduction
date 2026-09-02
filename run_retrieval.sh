@@ -41,6 +41,8 @@ sleep 30
 echo "[$(date '+%H:%M:%S')] GPU free, starting retrieval" >> "$STAMP"
 
 cd "$HERE/MolCA"
+# 64 is the match_batch_size that reproduced the paper on the cluster, and
+# the value the upstream README's own retrieval command uses.
 for eval_name in pcdes momu; do
     extra=""
     [ "$eval_name" = "momu" ] && extra="--use_phy_eval"
@@ -54,8 +56,8 @@ for eval_name in pcdes momu; do
       --init_checkpoint "all_checkpoints/stage1.ckpt" \
       --rerank_cand_num 128 \
       --num_query_token 8 \
-      --match_batch_size 16 \
-      --batch_size 16 \
+      --match_batch_size 64 \
+      --batch_size 64 \
       --num_workers 0 \
       --precision '16-mixed' \
       --mode eval $extra \

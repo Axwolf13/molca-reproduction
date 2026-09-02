@@ -189,8 +189,11 @@ appears in the paper.
 
 ## 8. Retrieval (cluster only)
 
-MolCA's second task, Table 4, evaluates molecule-text retrieval from
-`stage1.ckpt`. It never ran locally: two re-ranking passes per split at 13.4 s
+MolCA's second task evaluates molecule-text retrieval from `stage1.ckpt`.
+Reaching it at all requires fixing two bugs, one of which
+([issue #13](https://github.com/acharkq/MolCA/issues/13)) has been open upstream
+since July 2024 with its reporter unable to recover the paper's accuracy. See
+the README for how the two fixes differ. It never ran locally: two re-ranking passes per split at 13.4 s
 per iteration works out to roughly 11 GPU-hours. On the cluster both splits
 completed. Raw Lightning output, box drawing intact, sits in
 [`../cluster/results/results_retrieval.txt`](../cluster/results/results_retrieval.txt).
@@ -222,10 +225,13 @@ exceptions**, at a maximum deviation of 0.49.
 the whole diff from the raw Condor logs.
 
 The in-batch columns are the looser of the two, predictably so. In-batch
-retrieval ranks each query against its own batch alone, making the score a
-function of the evaluation batch size and shuffle seed. Since the paper reports
-neither, I treat the full-test-set columns as the reproduction and the in-batch
-ones as corroboration.
+retrieval ranks each query only against the molecules sharing its batch, and
+`Stage1KVPLMDM` builds those batches from a `.shuffle()` seeded by
+`pl.seed_everything(42)`. Since a seeded permutation is not stable across torch
+versions, the two machines group different molecules together even at the same
+`--match_batch_size 64`. Full-test-set retrieval ranks against every candidate
+and carries no such dependence, which is why I treat those columns as the
+reproduction and the in-batch ones as corroboration.
 
 Re-ranking lifts PCDes graph-to-text accuracy by **10.51** points (37.69 →
 48.20) and text-to-graph by **10.60**. Reading the same two rows out of Table 7b

@@ -174,7 +174,7 @@ Three further issues fall outside that table:
   sibling exposes. Three `if False:` branches in `stage1_dm.py` misdirect
   debugging further.
 
-### Retrieval: Two Real Bugs, Found and Fixed
+### Retrieval: One Known Bug and One New One
 
 `stage1.py` routes on the root path. Because `--root data/kv_data` contains the
 substring `kv`, every documented retrieval command takes the `Stage1KVPLMDM`
@@ -183,8 +183,13 @@ branch.
 1. **`Stage1KVPLMDM` never receives a tokenizer.** Grepping the file for
    `tokenizer` returns zero hits, yet it builds `GINPretrainDataset`, whose
    `tokenizer_text()` calls `self.tokenizer(...)`. Since `trainer.validate()`
-   iterates precisely that dataset, every documented retrieval command dies. A
-   suitable tokenizer sits in scope one line above the call.
+   iterates precisely that dataset, every documented retrieval command dies at
+   `pretrain_dataset.py:78` with `TypeError: 'NoneType' object is not callable`.
+   A suitable tokenizer sits in scope one line above the call site in
+   `stage1.py`. **This one is not mine.** It is
+   [issue #13](https://github.com/acharkq/MolCA/issues/13), reported in July
+   2024 and still open. I rediscovered it independently before reading the
+   tracker, which is worth stating plainly rather than dressing up.
 2. **torch 2.6 flipped the `weights_only` default in `torch.load` to `True`**,
    which rejects the pickled PyG graph objects the dataset stores. This stayed
    invisible on the authors' torch 2.0. It also stayed invisible throughout
@@ -197,6 +202,44 @@ never completed: two re-ranking passes per split, at 13.4 s per iteration over
 same two bugs surfaced at the same two lines, the patched pipeline ran to
 completion. Numbers live in
 [`cluster/results/results_retrieval.txt`](cluster/results/results_retrieval.txt).
+
+Finishing the run settles the question issue #13 left open. Its reporter patched
+the tokenizer by constructing one inside `pretrain_dataset.py`, then found the
+resulting accuracy far below the paper and asked whether the tokenizer was the
+culprit. The maintainer replied that the tokenizer was probably right and the
+cause lay elsewhere, without demonstrating it. Threading the model's own
+tokenizer through the datamodule constructor instead reproduces **all 32
+published retrieval metrics**. The maintainer's reading was therefore correct.
+A correctly wired tokenizer is sufficient, which leaves whatever degraded that
+reporter's numbers as a separate and still-undiagnosed problem.
+
+### Relation to the Issue Tracker
+
+Fourteen issues exist upstream, nine closed. Reading them separates what I
+rediscovered from what appears to be new. I searched every issue body and every
+comment for each finding:
+
+| Finding | Status upstream |
+|---|---|
+| Retrieval tokenizer is `None` | [#13](https://github.com/acharkq/MolCA/issues/13), open since Jul 2024 |
+| `all_checkpoints/share/` does not exist | Users copy that path from the README in #13 and #14 without anyone flagging it |
+| `environment.yml` will not build | [#8](https://github.com/acharkq/MolCA/issues/8), closed with a hand-written recipe that still omits `ogb`, `peft`, and `rdkit` |
+| `torch.load` `weights_only` under torch ≥2.6 | Unreported |
+| `persistent_workers=True` with `num_workers=0` | Unreported |
+| Unguarded `all_gather_object` and `dist.get_rank()` | Unreported |
+| `cuda:4` device tags in the checkpoints | Unreported |
+| `graph_only` missing from `stage2_chebi_dm.py` | Unreported |
+| `caption_evaluate` discarding its truncation arguments | Unreported |
+
+Two closed issues are worth knowing about before trusting any reproduction of
+this repository. [#7](https://github.com/acharkq/MolCA/issues/7) records that
+`script/chebi.sh` never loads a pretrained checkpoint. Anyone running the
+shipped script therefore measures a different model from the one the paper
+describes.
+[#3](https://github.com/acharkq/MolCA/issues/3) records a naming bug that had
+stage-1 pretraining reading the wrong subset of PubChem324k, fixed in
+`2d46afe`. Since the released `stage1.ckpt` postdates that commit, the
+checkpoint I evaluate is unaffected.
 
 ## Honest Limitations
 
