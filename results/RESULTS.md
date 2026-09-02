@@ -31,6 +31,37 @@ is pip-installed on one machine and hand-vendored on the other.
 The 1000-molecule subset used for the condition matrix lands within **0.12** of
 the full split, so the subset is not biased with respect to the full test set.
 
+### Agreement goes well past the aggregate score
+
+Two runs could reach the same corpus BLEU through different captions, which
+would make a matching number weak evidence. Comparing the predictions themselves
+molecule by molecule, via
+[`../cross_stack_agreement.py`](../cross_stack_agreement.py):
+
+| | Character-identical | Above 0.95 similarity |
+|---|---|---|
+| baseline, 3300 molecules | **93.8%** | 96.1% |
+
+Between a Pascal card and an Ada card, on different Python majors, different
+torch majors, and a LAVIS installed one way and vendored the other, fourteen
+captions in fifteen come out byte for byte the same.
+
+`shuffle_graph` agrees on only 68.5% of captions. That reason is mechanical
+rather than worrying. Because rotation happens **within a batch**, the laptop's
+batch of 4 and the cluster's batch of 8 hand a quarter of the molecules a
+different wrong graph:
+
+| Molecules | Character-identical |
+|---|---|
+| Given the same wrong graph by both runs (2476) | 91.3% |
+| Given a different wrong graph (824) | 0.0% |
+
+The split is exactly clean, carrying a robustness result worth more than the
+agreement figure itself. A quarter of the test set was paired with an entirely
+different wrong molecule, yet the aggregate moved by 0.07 BLEU-2 (25.62 against
+25.55). **The channel effect does not depend on which particular wrong graph is
+substituted.**
+
 ## 2. Condition ladder (pipeline BLEU-2, MolCA's own scorer)
 
 The subset conditions all see the **same first 1000 molecules** in the same
@@ -113,7 +144,8 @@ Matched manipulation, same magnitude applied to each channel:
 | incoherent (random edges) | 20.46 |
 
 A **wrong** graph hurts more than **no** graph, and an incoherent one hurts
-most. A model treating the graph as a weak side-channel would be no worse off
+most. That first gap is the narrow one, at 1.78 BLEU-2 on the full split. It
+survives resampling: 95% CI [+1.37, +2.30], §10. A model treating the graph as a weak side-channel would be no worse off
 with garbage than with nothing. Under `rewire_graph` the model also does not
 fall back on the SMILES: 23.27 against its own molecule, barely above the 21.10
 floor.
@@ -129,8 +161,12 @@ content verified as the same character multiset, collapses the model:
 | default order | 63.16 | 63.10 | 66.04 | 42.9 words | 0 |
 | graph prompts first | **0.01** | 0.05 | 0.09 | 123.0 words | 55 |
 
-(Both scored with the same recomputation, `bert-base-uncased`, hence 63.16
-rather than the pipeline's 62.65.) Output degenerates into repeated tokens:
+(Both rows come from the same recomputation, which tokenises with
+`bert-base-uncased`, hence 63.16 against the pipeline's 62.65. MolCA's scorer
+actually calls `init_tokenizer()`, returning `allenai/scibert_scivocab_uncased`.
+Matching that vocabulary closes the gap exactly, as §10 shows. The comparison
+inside this table is unaffected, since both rows use the same tokeniser.)
+Output degenerates into repeated tokens:
 `"trans trans trans trans de trans ..."`, `"p p p p p p ..."`.
 
 **This experiment failed as an instrument.** It was designed to separate
@@ -159,33 +195,42 @@ per iteration works out to roughly 11 GPU-hours. On the cluster both splits
 completed. Raw Lightning output, box drawing intact, sits in
 [`../cluster/results/results_retrieval.txt`](../cluster/results/results_retrieval.txt).
 
-Full test set, contrastive scoring:
+Full test set, contrastive scoring alone. This is the paper's `MolCA w/o MTM`
+row, Tables 7b and 7c:
 
-| Split | Direction | Accuracy | R@20 |
-|---|---|---|---|
-| PCDes | graph → text | 37.69 | 80.59 |
-| PCDes | text → graph | 35.36 | 76.55 |
-| MoMu | graph → text | 22.47 | **68.45** |
-| MoMu | text → graph | 21.14 | **64.76** |
+| Split | Direction | Acc | Acc (paper) | R@20 | R@20 (paper) |
+|---|---|---|---|---|---|
+| PCDes | graph → text | 37.69 | 37.7 | 80.59 | 80.6 |
+| PCDes | text → graph | 35.36 | 35.3 | 76.55 | 76.5 |
+| MoMu | graph → text | 22.47 | 22.5 | 68.45 | 68.5 |
+| MoMu | text → graph | 21.14 | 21.1 | 64.76 | 64.8 |
 
-After re-ranking the top-128 candidates with the molecule-text matching head:
+After re-ranking the top-128 candidates with the molecule-text matching head,
+which is the paper's plain `MolCA` row:
 
-| Split | Direction | Accuracy | R@20 |
-|---|---|---|---|
-| PCDes | graph → text | 48.20 | 85.56 |
-| PCDes | text → graph | 45.96 | 82.22 |
-| MoMu | graph → text | 30.55 | 76.77 |
-| MoMu | text → graph | 29.68 | 73.32 |
+| Split | Direction | Acc | Acc (paper) | R@20 | R@20 (paper) |
+|---|---|---|---|---|---|
+| PCDes | graph → text | 48.20 | 48.1 | 85.56 | 85.6 |
+| PCDes | text → graph | 45.96 | 46.0 | 82.22 | 82.3 |
+| MoMu | graph → text | 30.55 | 30.6 | 76.77 | 76.8 |
+| MoMu | text → graph | 29.68 | 29.8 | 73.32 | 73.3 |
 
-The two MoMu R@20 figures land within **0.05** of the paper's 68.5 and 64.8.
-Because I have the published values for those two metrics only, the remaining
-fourteen are reported without a reference number rather than claimed as matches.
+All sixteen full-test-set metrics land within **0.12**. Adding the sixteen
+in-batch metrics brings the comparison to **32 published values with no
+exceptions**, at a maximum deviation of 0.49.
+[`../cluster/verify_retrieval.py`](../cluster/verify_retrieval.py) recomputes
+the whole diff from the raw Condor logs.
+
+The in-batch columns are the looser of the two, predictably so. In-batch
+retrieval ranks each query against its own batch alone, making the score a
+function of the evaluation batch size and shuffle seed. Since the paper reports
+neither, I treat the full-test-set columns as the reproduction and the in-batch
+ones as corroboration.
 
 Re-ranking lifts PCDes graph-to-text accuracy by **10.51** points (37.69 →
-48.20) and text-to-graph by **10.60**. The paper credits re-ranking with +8.3 on
-its own configuration. Reproducing the direction and rough magnitude of a
-mechanism's contribution is the falsifiable part; the exact delta depends on
-which split and setting the paper averaged over.
+48.20) and text-to-graph by **10.60**. Reading the same two rows out of Table 7b
+gives 10.4 and 10.7, so the mechanism's contribution reproduces as closely as
+the endpoints do.
 
 One sanity check the logs happen to supply: every `val_*` row is identical
 between the PCDes job and the MoMu job. Since `--use_phy_eval` swaps only the
@@ -221,6 +266,49 @@ zeroes the graph features **and** rotates the SMILES, stripping both channels of
 correct information at once. Landing below `null_graph` (27.40) while staying
 above `rewire_graph` (20.18) places it where the ladder predicts.
 
+## 10. Error bars
+
+Generation here is deterministic, which leaves one source of variation worth
+measuring: the test set is a sample of molecules, and a different 3300 would
+give a different number. A paired bootstrap over those molecules quantifies
+exactly that. [`../bootstrap.py`](../bootstrap.py) resamples the split 2000
+times, applying the **same index draw to every condition** so each contrast
+stays paired.
+
+The script reimplements `caption_evaluate` rather than approximating it: SciBERT
+tokenisation, special tokens stripped, nltk `corpus_bleu` at weights (.5, .5)
+with no smoothing. Its point estimates reproduce all five pipeline scores to the
+last reported decimal (62.32, 47.41, 27.40, 25.62, 20.18), so the intervals below
+are on MolCA's own metric rather than on a proxy for it.
+
+| Condition | BLEU-2 | 95% CI |
+|---|---|---|
+| baseline | 62.32 | [61.45, 63.18] |
+| shuffle_smiles | 47.41 | [46.54, 47.98] |
+| null_graph | 27.40 | [27.01, 27.82] |
+| shuffle_graph | 25.62 | [25.22, 25.94] |
+| rewire_graph | 20.18 | [19.71, 20.65] |
+
+The contrasts matter more than the levels, because a paired design cancels the
+shared difficulty of whichever molecules a resample happens to draw:
+
+| Contrast | Observed | 95% CI | Claim it tests |
+|---|---|---|---|
+| Substituting the SMILES | +14.91 | [+14.32, +15.91] | the text channel carries signal |
+| Substituting the graph | +36.70 | [+35.91, +37.60] | the graph channel carries signal |
+| Graph cost over SMILES cost | +21.79 | [+20.87, +22.50] | **the graph matters more** |
+| No graph over wrong graph | +1.78 | [+1.37, +2.30] | **a wrong graph beats no graph** |
+| Wrong graph over incoherent | +5.45 | [+4.86, +5.89] | incoherence is worse still |
+
+Every interval excludes zero. The one I expected to be fragile is the fourth:
+1.78 BLEU-2 is a small gap, and the whole trust-ladder argument in §5 rests on
+it. Its interval clears zero by a comfortable margin, so the ordering holds.
+
+Raw output is in [`bootstrap.txt`](bootstrap.txt). Two caveats on scope. The
+bootstrap runs on the cluster's full-split predictions, since the laptop reached
+3300 molecules for only two conditions. And it measures test-set sampling alone,
+not training variance; see Limitation 6.
+
 ---
 
 ## Limitations
@@ -247,14 +335,20 @@ stereotyped phrasing. On correct baseline captions it registers a match only
 rather than model failure. Ratios between conditions are unaffected; absolute
 rates are underestimates.
 
-**5. Own metrics ≠ the paper's.** §3 and §6 use different tokenisation and
-smoothing from MolCA's scorer (the pipeline reports 25.71 for `shuffle_graph`;
-this recomputation gives 28.80 on the same file). Compare only within a table.
+**5. §3 and §6 do not use MolCA's scorer.** Both tokenise with
+`bert-base-uncased` where the pipeline uses SciBERT, and both apply smoothing
+the pipeline omits, which is why the pipeline reports 25.71 for `shuffle_graph`
+while that recomputation gives 28.80 on the identical file. Compare only within
+a table. §10 is the exception: it reimplements `caption_evaluate` faithfully and
+reproduces all five pipeline scores to the last decimal.
 
-**6. No error bars.** Generation is deterministic here (`do_sample=False`,
-5 beams), so re-running gives identical output. Error bars would require
-retraining, which was out of budget. The paper has the same gap on every
-generative table; that is not a defence.
+**6. Error bars cover test-set sampling only.** Generation is deterministic
+here (`do_sample=False`, 5 beams), so re-running gives identical output. The
+remaining source of variation is which molecules the test set contains, and §10
+quantifies it with a paired bootstrap. What that does **not** cover is training
+variance: a second checkpoint trained from a different seed could land elsewhere,
+and measuring that would require retraining. The paper reports no interval of
+either kind.
 
 **7. Retrieval was measured on the cluster only.** Two real bugs were found and
 patched, and the data path was verified end to end on both machines. Locally the

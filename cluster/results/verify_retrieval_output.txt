@@ -1,0 +1,41 @@
+
+PCDes  (paper Table 7b, log pcdes.183393.out)
+  metric                               ours    paper    delta
+  test_inbatch_g2t_acc                80.89     80.9    -0.01
+  test_inbatch_g2t_rec20              98.03     98.1    -0.07
+  test_inbatch_t2g_acc                77.85     77.9    -0.05
+  test_inbatch_t2g_rec20              97.50     97.5    +0.00
+  test_fullset_g2t_acc                37.69     37.7    -0.01
+  test_fullset_g2t_rec20              80.59     80.6    -0.01
+  test_fullset_t2g_acc                35.36     35.3    +0.06
+  test_fullset_t2g_rec20              76.55     76.5    +0.05
+  rerank_test_inbatch_g2t_acc         86.42     86.4    +0.02
+  rerank_test_inbatch_g2t_rec20       99.80     99.8    +0.00
+  rerank_test_inbatch_t2g_acc         84.76     84.8    -0.04
+  rerank_test_inbatch_t2g_rec20       98.50     98.5    +0.00
+  rerank_test_fullset_g2t_acc         48.20     48.1    +0.10
+  rerank_test_fullset_g2t_rec20       85.56     85.6    -0.04
+  rerank_test_fullset_t2g_acc         45.96     46.0    -0.04
+  rerank_test_fullset_t2g_rec20       82.22     82.3    -0.08
+
+MoMu  (paper Table 7c, log momu.183394.out)
+  metric                               ours    paper    delta
+  test_inbatch_g2t_acc                64.99     65.0    -0.01
+  test_inbatch_g2t_rec20              95.90     95.9    +0.00
+  test_inbatch_t2g_acc                63.09     63.3    -0.21
+  test_inbatch_t2g_rec20              95.90     95.9    +0.00
+  test_fullset_g2t_acc                22.47     22.5    -0.03
+  test_fullset_g2t_rec20              68.45     68.5    -0.05
+  test_fullset_t2g_acc                21.14     21.1    +0.04
+  test_fullset_t2g_rec20              64.76     64.8    -0.04
+  rerank_test_inbatch_g2t_acc         73.35     73.4    -0.05
+  rerank_test_inbatch_g2t_rec20       98.47     98.5    -0.03
+  rerank_test_inbatch_t2g_acc         72.31     72.8    -0.49
+  rerank_test_inbatch_t2g_rec20       97.52     97.5    +0.02
+  rerank_test_fullset_g2t_acc         30.55     30.6    -0.05
+  rerank_test_fullset_g2t_rec20       76.77     76.8    -0.03
+  rerank_test_fullset_t2g_acc         29.68     29.8    -0.12
+  rerank_test_fullset_t2g_rec20       73.32     73.3    +0.02
+
+32 metrics checked, 0 missing, max |deviation| = 0.49 (MoMu rerank_test_inbatch_t2g_acc)
+full-test-set columns only (16 metrics): max |deviation| = 0.12

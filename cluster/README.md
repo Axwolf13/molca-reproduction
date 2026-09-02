@@ -51,6 +51,8 @@ release. None of them is redistributed here.
 |---|---|
 | `results/results.txt` | Pipeline BLEU-2, BLEU-4, METEOR and wall time for 17 jobs |
 | `results/results_retrieval.txt` | Stage-1 retrieval, raw Lightning output |
+| `results/verify_retrieval_output.txt` | Output of `verify_retrieval.py`, all 32 metrics |
+| `verify_retrieval.py` | Diffs both retrieval logs against the paper's Tables 7b and 7c |
 | `results/results_multimetric.txt` | Channel conflict across BLEU-2, BLEU-4, ROUGE-L, METEOR |
 | `results/results_class_fuzzy.txt` | Chemical-class agreement under three matching rules |
 | `predictions/` | 17 prediction files, one per job, as JSONL |
@@ -68,24 +70,60 @@ Retrieval is the one task the cluster finished and the laptop did not. Local
 runs need roughly 11 GPU-hours for two re-ranking passes across both splits,
 which never fit into a night.
 
-Full-test-set figures, lifted from `results/results_retrieval.txt`:
+`verify_retrieval.py` parses the two Condor logs and diffs every metric against
+Tables 7b and 7c of the paper. Its output is kept in
+`results/verify_retrieval_output.txt`. Running it:
 
-| Split | Direction | Accuracy | R@20 | Accuracy (re-ranked) | R@20 (re-ranked) |
+```
+32 metrics checked, 0 missing, max |deviation| = 0.49 (MoMu rerank_test_inbatch_t2g_acc)
+full-test-set columns only (16 metrics): max |deviation| = 0.12
+```
+
+Lightning's `test_*` keys correspond to the paper's `MolCA w/o MTM` row, which
+scores by contrastive similarity alone. Its `rerank_test_*` keys correspond to
+the plain `MolCA` row, re-ranking the top-128 candidates with the matching head.
+
+Full test set, the column the paper leads with:
+
+| Split | Direction | Acc | Acc (paper) | R@20 | R@20 (paper) |
 |---|---|---|---|---|---|
-| PCDes | graph → text | 37.69 | 80.59 | 48.20 | 85.56 |
-| PCDes | text → graph | 35.36 | 76.55 | 45.96 | 82.22 |
-| MoMu | graph → text | 22.47 | **68.45** | 30.55 | 76.77 |
-| MoMu | text → graph | 21.14 | **64.76** | 29.68 | 73.32 |
+| PCDes | graph → text | 37.69 | 37.7 | 80.59 | 80.6 |
+| PCDes | text → graph | 35.36 | 35.3 | 76.55 | 76.5 |
+| MoMu | graph → text | 22.47 | 22.5 | 68.45 | 68.5 |
+| MoMu | text → graph | 21.14 | 21.1 | 64.76 | 64.8 |
 
-The two bolded figures sit within 0.05 of the paper's 68.5 and 64.8. Re-ranking
-the top-128 contrastive candidates with the matching head lifts PCDes
-graph-to-text accuracy from 37.69 to 48.20, reproducing the direction and
-roughly the magnitude of the gain the paper attributes to that step.
+The same four rows after re-ranking:
 
-One incidental check worth recording: the `val_*` rows are byte-identical
+| Split | Direction | Acc | Acc (paper) | R@20 | R@20 (paper) |
+|---|---|---|---|---|---|
+| PCDes | graph → text | 48.20 | 48.1 | 85.56 | 85.6 |
+| PCDes | text → graph | 45.96 | 46.0 | 82.22 | 82.3 |
+| MoMu | graph → text | 30.55 | 30.6 | 76.77 | 76.8 |
+| MoMu | text → graph | 29.68 | 29.8 | 73.32 | 73.3 |
+
+Re-ranking lifts PCDes graph-to-text accuracy by 10.51 points, from 37.69 to
+48.20. That mechanism is the paper's own claim about the matching head,
+reproducing here in both direction and magnitude.
+
+### Where the deviations concentrate
+
+The sixteen full-test-set metrics stay within 0.12. The sixteen in-batch metrics
+are looser, with two outliers: MoMu text-to-graph in-batch accuracy misses by
+0.21 without re-ranking and by 0.49 with it. Every other in-batch metric sits
+inside 0.07.
+
+That asymmetry is structural rather than mysterious. Full-test-set retrieval
+ranks each query against all candidates, giving a quantity independent of how
+the loader groups examples. In-batch retrieval ranks each query only against its
+own batch, which makes the score a function of `--match_batch_size` and of the
+shuffle seed. Since the paper does not state the batch size it evaluated with,
+the in-batch columns are the weaker comparison of the two. I therefore treat
+the full-test-set figures as the reproduction.
+
+One incidental check the logs happen to supply: every `val_*` row is identical
 between the PCDes job and the MoMu job. Since `--use_phy_eval` swaps only the
-test split, that identity is what a correct run should produce. Its absence
-would have signalled state leaking between jobs.
+test split, that identity is what correct runs produce. Divergence there would
+have signalled state leaking between jobs.
 
 ## Two Findings the Logs Preserve
 

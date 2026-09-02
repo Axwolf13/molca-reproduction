@@ -36,7 +36,8 @@ Running the released checkpoint over the full 3300-molecule CheBI-20 test split:
 
 Three measurements of one checkpoint span 0.77 BLEU-2 across two GPU
 generations, two Python versions, two torch majors, and two transformers
-versions. Because I also hand-vendored LAVIS on the laptop rather than
+versions. Agreement runs deeper than the score: **93.8% of the 3300 captions are
+character-identical** between the two machines. Because I also hand-vendored LAVIS on the laptop rather than
 installing it, the software stack differs substantially between the two
 machines. Both ran fp16, the P100 having rejected bfloat16 outright.
 
@@ -65,16 +66,23 @@ costs, under a matched manipulation applied to each channel.
 
 ### Retrieval Reproduces Too
 
-The cluster additionally reproduced the paper's Table 4 retrieval task from
-`stage1.ckpt`, once two release bugs described below were fixed:
+The cluster additionally reproduced MolCA's retrieval task from `stage1.ckpt`,
+once two release bugs described below were fixed. Diffing both Condor logs
+against Tables 7b and 7c of the paper covers **all 32 published metrics**:
 
-| Split, full test set | Reproduced | Paper |
+| Scope | Metrics | Max deviation |
 |---|---|---|
-| MoMu, graph → text R@20 | 68.45 | 68.5 |
-| MoMu, text → graph R@20 | 64.76 | 64.8 |
+| Full test set, both splits | 16 | **0.12** |
+| In batch, both splits | 16 | 0.49 |
+
+`cluster/verify_retrieval.py` recomputes that comparison from the raw logs. The
+in-batch figures deviate more because in-batch retrieval ranks each query only
+against its own batch, making the score depend on an evaluation batch size the
+paper never states. Full-test-set retrieval ranks against every candidate and
+carries no such dependence.
 
 Re-ranking the top-128 contrastive candidates with the matching head lifts PCDes
-graph-to-text accuracy from 37.69 to 48.20, reproducing the direction and rough
+graph-to-text accuracy from 37.69 to 48.20, reproducing the direction and
 magnitude of the gain the paper credits to that step.
 
 ### The Model Trusts the Graph Rather Than Hedging
@@ -99,6 +107,8 @@ Full numbers, controls, and limitations live in
 |---|---|
 | `apply_patches.py` | 14 idempotent source patches across four groups |
 | `analyse.py` | n-gram agreement, chemical-class agreement, per-example verdicts |
+| `bootstrap.py` | Paired bootstrap confidence intervals over the test set |
+| `cross_stack_agreement.py` | Caption-level agreement between the two machines |
 | `run_eval.sh` | A single condition |
 | `run_queue.sh` | Several conditions back to back |
 | `supervise.sh` | Resumable supervisor that skips finished conditions and retries failures |
