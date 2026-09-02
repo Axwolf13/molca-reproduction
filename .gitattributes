@@ -4,3 +4,10 @@
 *.diff text eol=lf
 # Prediction files are data: leave bytes untouched.
 *.jsonl -text
+
+# HTCondor submit files run on Linux too.
+*.sub  text eol=lf
+# Raw tool output: preserve the bytes exactly, carriage returns and box drawing included.
+*.out  -text
+*.err  -text
+cluster/results/*.txt -text

@@ -1,0 +1,214 @@
+diff --git a/data_provider/stage1_dm.py b/data_provider/stage1_dm.py
+index 96b90a2..7363ae8 100644
+--- a/data_provider/stage1_dm.py
++++ b/data_provider/stage1_dm.py
+@@ -53,6 +53,8 @@ class Stage1DM(LightningDataModule):
+         if False:
+             self.train_dataset = GINPretrainDataset(root+'/pretrain/', text_max_len, graph_aug, args.text_aug, args.filtered_cid_path)
+             self.val_dataset = GINPretrainDataset(root + '/valid/', text_max_len, graph_aug, args.text_aug)
++            self.train_dataset.tokenizer = tokenizer
++            self.val_dataset.tokenizer = tokenizer
+             self.val_dataset_match = RetrievalDataset(root + '/valid/', args).shuffle()
+             self.test_dataset_match = RetrievalDataset(root + '/test/', args).shuffle()
+             self.val_match_loader = torch_geometric.loader.DataLoader(self.val_dataset_match, 
+@@ -74,6 +76,8 @@ class Stage1DM(LightningDataModule):
+             self.val_dataset = MoleculeCaptionV2(root + 'valid.pt', text_max_len)
+             self.val_dataset_match = MoleculeCaptionV2(root + 'valid.pt', text_max_len).shuffle()
+             self.test_dataset_match = MoleculeCaptionV2(root + 'test.pt', text_max_len).shuffle()
++            for _d in (self.train_dataset, self.val_dataset, self.val_dataset_match, self.test_dataset_match):
++                _d.tokenizer = tokenizer
+             self.val_match_loader = DataLoader(self.val_dataset_match, batch_size=self.match_batch_size, shuffle=False, num_workers=self.num_workers, pin_memory=False, drop_last=False, persistent_workers=True, collate_fn=TrainCollater(self.tokenizer, text_max_len))
+             self.test_match_loader = DataLoader(self.test_dataset_match, batch_size=self.match_batch_size, shuffle=False, num_workers=self.num_workers, pin_memory=False, drop_last=False, persistent_workers=True, collate_fn=TrainCollater(self.tokenizer, text_max_len))
+     
+diff --git a/data_provider/stage1_kvplm_dm.py b/data_provider/stage1_kvplm_dm.py
+index 6e97f8f..a2b3404 100644
+--- a/data_provider/stage1_kvplm_dm.py
++++ b/data_provider/stage1_kvplm_dm.py
+@@ -15,6 +15,7 @@ class Stage1KVPLMDM(LightningDataModule):
+         root: str = 'data/',
+         text_max_len: int = 128,
+         graph_aug: str = 'dnodes',
++        tokenizer=None,
+         args=None,
+     ):
+         super().__init__()
+@@ -29,6 +30,9 @@ class Stage1KVPLMDM(LightningDataModule):
+             self.test_dataset_match = RetrievalDatasetKVPLM(root + '/phy_data/', args).shuffle()
+         else:
+             self.test_dataset_match = RetrievalDatasetKVPLM(root + '/test/', args).shuffle()
++        self.tokenizer = tokenizer
++        for _d in (self.train_dataset, self.val_dataset, self.val_dataset_match, self.test_dataset_match):
++            _d.tokenizer = tokenizer
+         self.val_match_loader = torch_geometric.loader.DataLoader(self.val_dataset_match, 
+                                                                   batch_size=self.match_batch_size,
+                                                                   shuffle=False,
+diff --git a/data_provider/stage2_chebi_dm.py b/data_provider/stage2_chebi_dm.py
+index d875475..4db89c2 100644
+--- a/data_provider/stage2_chebi_dm.py
++++ b/data_provider/stage2_chebi_dm.py
+@@ -45,6 +45,17 @@ def smiles_handler(text, mol_ph, is_gal=True):
+     for match in CUSTOM_SEQ_RE.finditer(text):
+         smiles = match.group(3)
+         smiles_list.append(smiles)
++    import os
++    if os.environ.get('MOLCA_GRAPH_ONLY') == '1':
++        return CUSTOM_SEQ_RE.sub(r'%s' % (mol_ph), text), smiles_list
++    if os.environ.get('MOLCA_MOL_FIRST') == '1':
++        # soft prompts BEFORE the SMILES span, to separate modality from position
++        if is_gal:
++            text = CUSTOM_SEQ_RE.sub(r'%s\1\3\4' % (mol_ph), text)
++            return escape_custom_split_sequence(text), smiles_list
++        else:
++            text = CUSTOM_SEQ_RE.sub(r'%s\3' % (mol_ph), text)
++            return text, smiles_list
+     if is_gal:
+         text = CUSTOM_SEQ_RE.sub(r'\1\3\4%s' % (mol_ph), text)
+         text = escape_custom_split_sequence(text)
+@@ -126,6 +137,44 @@ class InferenceCollater:
+         
+     def __call__(self, batch):
+         graphs, texts, smiles_prompt = zip(*batch)
++        import os
++        if os.environ.get('MOLCA_SHUFFLE_GRAPH') == '1':
++            graphs = graphs[1:] + graphs[:1]
++        if os.environ.get('MOLCA_SHUFFLE_GRAPH_REV') == '1':
++            graphs = graphs[-1:] + graphs[:-1]
++        if os.environ.get('MOLCA_SHUFFLE_SMILES') == '1':
++            smiles_prompt = smiles_prompt[1:] + smiles_prompt[:1]
++        if os.environ.get('MOLCA_NULL_GRAPH') == '1':
++            import torch as _t2, copy as _c2
++            graphs = tuple((lambda g: (setattr(g,'x',_t2.zeros_like(g.x)), g)[1])(_c2.copy(_g))
++                           for _g in graphs)
++        _frac = os.environ.get('MOLCA_REWIRE_FRAC')
++        if _frac:
++            import torch as _t3, copy as _c3
++            _f = float(_frac); _out3 = []
++            for _g in graphs:
++                _g = _c3.copy(_g)
++                if _g.edge_index is not None and _g.edge_index.numel() > 0:
++                    _n = int(_g.x.size(0)); _e = _g.edge_index.size(1)
++                    _k = int(_e * _f)
++                    if _k > 0:
++                        _idx = _t3.randperm(_e)[:_k]
++                        _ei = _g.edge_index.clone()
++                        _ei[:, _idx] = _t3.randint(0, _n, (2, _k), dtype=_ei.dtype)
++                        _g.edge_index = _ei
++                _out3.append(_g)
++            graphs = tuple(_out3)
++        if os.environ.get('MOLCA_REWIRE_GRAPH') == '1':
++            import torch as _t, copy as _c
++            _out = []
++            for _g in graphs:
++                _g = _c.copy(_g)
++                if _g.edge_index is not None and _g.edge_index.numel() > 0:
++                    _n = int(_g.x.size(0))
++                    _e = _g.edge_index.size(1)
++                    _g.edge_index = _t.randint(0, _n, (2, _e), dtype=_g.edge_index.dtype)
++                _out.append(_g)
++            graphs = tuple(_out)
+         graphs = self.collater(graphs)
+         smiles_prompt = [smiles_handler(p, self.mol_ph, self.is_gal)[0] for p in smiles_prompt]
+         ## deal with prompt
+diff --git a/model/blip2_opt.py b/model/blip2_opt.py
+index 832f1fa..ae99a79 100644
+--- a/model/blip2_opt.py
++++ b/model/blip2_opt.py
+@@ -159,10 +159,10 @@ class Blip2OPT(Blip2Base):
+         self.collater = Collater([], [])
+         
+         if opt_model == 'facebook/galactica-125m':
+-            self.opt_model = OPTForCausalLM.from_pretrained(opt_model, torch_dtype=torch.bfloat16)
++            self.opt_model = OPTForCausalLM.from_pretrained(opt_model, torch_dtype=torch.float16)
+         else:
+             if torch.cuda.is_bf16_supported():
+-                self.opt_model = OPTForCausalLM.from_pretrained(opt_model, torch_dtype=torch.bfloat16)
++                self.opt_model = OPTForCausalLM.from_pretrained(opt_model, torch_dtype=torch.float16)
+             else:
+                 self.opt_model = OPTForCausalLM.from_pretrained(opt_model, torch_dtype=torch.float16)
+         self.opt_model.resize_token_embeddings(len(self.opt_tokenizer)) ## this will cause bug when full fine-tuning the opt model
+diff --git a/model/blip2_stage2.py b/model/blip2_stage2.py
+index 0570071..7d9d99d 100644
+--- a/model/blip2_stage2.py
++++ b/model/blip2_stage2.py
+@@ -138,8 +138,14 @@ class Blip2Stage2(pl.LightningModule):
+         all_predictions = [None for _ in range(self.trainer.world_size)]
+         all_targets = [None for _ in range(self.trainer.world_size)]
+         
+-        dist.all_gather_object(all_predictions, predictions)
+-        dist.all_gather_object(all_targets, targets)
++        if dist.is_initialized():
++            dist.all_gather_object(all_predictions, predictions)
++        else:
++            all_predictions = [predictions]
++        if dist.is_initialized():
++            dist.all_gather_object(all_targets, targets)
++        else:
++            all_targets = [targets]
+         if self.global_rank == 0:
+             all_predictions = [i for ii in all_predictions for i in ii]
+             all_targets = [i for ii in all_targets for i in ii]
+@@ -246,8 +252,14 @@ class Blip2Stage2(pl.LightningModule):
+         all_predictions = [None for _ in range(self.trainer.world_size)]
+         all_targets = [None for _ in range(self.trainer.world_size)]
+         try:
+-            dist.all_gather_object(all_predictions, predictions)
+-            dist.all_gather_object(all_targets, targets)
++            if dist.is_initialized():
++                dist.all_gather_object(all_predictions, predictions)
++            else:
++                all_predictions = [predictions]
++            if dist.is_initialized():
++                dist.all_gather_object(all_targets, targets)
++            else:
++                all_targets = [targets]
+         except RuntimeError:
+             all_predictions = [predictions]
+             all_targets = [targets]
+diff --git a/model/blip2qformer.py b/model/blip2qformer.py
+index 27094f6..b5298fc 100644
+--- a/model/blip2qformer.py
++++ b/model/blip2qformer.py
+@@ -243,7 +243,7 @@ class Blip2Qformer(Blip2Base):
+         logits_per_text = sim_t2g / self.temperature
+ 
+         # labels = torch.arange(bs, dtype=torch.long, device=self.device)
+-        rank = dist.get_rank()
++        rank = dist.get_rank() if dist.is_initialized() else 0
+         labels = torch.linspace(rank * bs, rank * bs + bs - 1, bs, dtype=int).to(self.device)
+ 
+         loss_graph = F.cross_entropy(logits_per_graph, labels)
+diff --git a/stage1.py b/stage1.py
+index 82b0ec2..6342794 100644
+--- a/stage1.py
++++ b/stage1.py
+@@ -23,7 +23,7 @@ def main(args):
+ 
+     # model
+     if args.init_checkpoint:
+-        model = Blip2Stage1.load_from_checkpoint(args.init_checkpoint, device=args.devices, args=args)
++        model = Blip2Stage1.load_from_checkpoint(args.init_checkpoint, device=args.devices, args=args, map_location='cpu')
+         print(f"loading model from {args.init_checkpoint}")
+     else:
+         model = Blip2Stage1(args)
+@@ -33,7 +33,7 @@ def main(args):
+     tokenizer = model.blip2qformer.tokenizer
+     # data
+     if args.root.find('kv') >= 0:
+-        dm = Stage1KVPLMDM(args.num_workers, args.batch_size, args.root, args.text_max_len, args.graph_aug, args)
++        dm = Stage1KVPLMDM(args.num_workers, args.batch_size, args.root, args.text_max_len, args.graph_aug, tokenizer, args)
+     else:
+         dm = Stage1DM(args.num_workers, args.batch_size, args.root, args.text_max_len, args.graph_aug, tokenizer,
+                       args)
+diff --git a/stage2.py b/stage2.py
+index aa02c73..54dbb80 100644
+--- a/stage2.py
++++ b/stage2.py
+@@ -34,7 +34,7 @@ def main(args):
+     pl.seed_everything(args.seed)
+     # model
+     if args.init_checkpoint:
+-        model = Blip2Stage2.load_from_checkpoint(args.init_checkpoint, strict=False, args=args)
++        model = Blip2Stage2.load_from_checkpoint(args.init_checkpoint, strict=False, args=args, map_location='cpu')
+         print(f"loaded init checkpoint from {args.init_checkpoint}")
+     elif args.stage2_path:
+         model = Blip2Stage2(args)

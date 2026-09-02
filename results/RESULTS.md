@@ -8,8 +8,9 @@ manipulations, plus a full-test-set reproduction.
 
 Local configuration: RTX 4060 Laptop 8 GB, Python 3.13.2, torch 2.13.0+cu126,
 transformers 4.46.3, fp16, 5-beam search, batch 4. A parallel set of runs on a
-Tesla P100 (Python 3.10, torch 2.3.1, transformers 4.44.2, bf16, batch 8) is
-referenced where available.
+Tesla P100 (Python 3.10, torch 2.3.1, transformers 4.44.2, fp16, batch 8) is
+referenced where available; those artifacts live under `../cluster/`. Both
+machines ran fp16, the P100 having rejected bfloat16 outright.
 
 ---
 
@@ -24,8 +25,8 @@ referenced where available.
 
 Three independent measurements of the same checkpoint on the identical test
 split span **0.77 BLEU-2**, across two GPU generations (Pascal → Ada), two
-Python versions, two torch majors, two transformers versions, a precision
-change (bf16 → fp16) and a hand-vendored LAVIS.
+Python versions, two torch majors, two transformers versions, and a LAVIS that
+is pip-installed on one machine and hand-vendored on the other.
 
 The 1000-molecule subset used for the condition matrix lands within **0.12** of
 the full split, so the subset is not biased with respect to the full test set.
@@ -37,8 +38,8 @@ order, so they are exactly comparable to one another.
 
 | condition | n | BLEU-2 | Δ | manipulation |
 |---|---|---|---|---|
-| baseline | 3300 | 62.77 | — | unmodified |
-| baseline | 1000 | 62.65 | — | unmodified |
+| baseline | 3300 | 62.77 | n/a | unmodified |
+| baseline | 1000 | 62.65 | n/a | unmodified |
 | shuffle_smiles | 1000 | 48.05 | −14.60 | own graph, next molecule's SMILES |
 | null_graph | 1000 | 28.19 | −34.46 | graph present, atom features zeroed |
 | shuffle_graph_rev | 1000 | 26.10 | −36.55 | own SMILES, previous molecule's graph |
@@ -120,8 +121,8 @@ floor.
 ## 6. MolCA is extremely brittle to prompt layout
 
 The template appends the graph soft prompts *after* the SMILES span
-(`\1\3\4%s`). Moving them in front — identical tokens, identical content,
-verified as the same character multiset — collapses the model:
+(`\1\3\4%s`). Moving them in front, with identical tokens and identical
+content verified as the same character multiset, collapses the model:
 
 | | BLEU-2 | ROUGE-L | METEOR | mean length | empty |
 |---|---|---|---|---|---|
@@ -133,8 +134,9 @@ rather than the pipeline's 62.65.) Output degenerates into repeated tokens:
 `"trans trans trans trans de trans ..."`, `"p p p p p p ..."`.
 
 **This experiment failed as an instrument.** It was designed to separate
-modality from position — the graph prompts sit nearest the generation point, so
-"the graph dominates" is confounded with "the nearest channel dominates".
+modality from position. Because the graph prompts sit nearest the generation
+point, "the graph dominates" stays confounded with "the nearest channel
+dominates".
 Because reordering alone destroys generation, it cannot separate them. The
 confound in §3 remains open.
 
@@ -149,6 +151,76 @@ of the time and overrides an explicit contradicting SMILES string. The two
 measurements are compatible but tell different stories, and only the first
 appears in the paper.
 
+## 8. Retrieval (cluster only)
+
+MolCA's second task, Table 4, evaluates molecule-text retrieval from
+`stage1.ckpt`. It never ran locally: two re-ranking passes per split at 13.4 s
+per iteration works out to roughly 11 GPU-hours. On the cluster both splits
+completed. Raw Lightning output, box drawing intact, sits in
+[`../cluster/results/results_retrieval.txt`](../cluster/results/results_retrieval.txt).
+
+Full test set, contrastive scoring:
+
+| Split | Direction | Accuracy | R@20 |
+|---|---|---|---|
+| PCDes | graph → text | 37.69 | 80.59 |
+| PCDes | text → graph | 35.36 | 76.55 |
+| MoMu | graph → text | 22.47 | **68.45** |
+| MoMu | text → graph | 21.14 | **64.76** |
+
+After re-ranking the top-128 candidates with the molecule-text matching head:
+
+| Split | Direction | Accuracy | R@20 |
+|---|---|---|---|
+| PCDes | graph → text | 48.20 | 85.56 |
+| PCDes | text → graph | 45.96 | 82.22 |
+| MoMu | graph → text | 30.55 | 76.77 |
+| MoMu | text → graph | 29.68 | 73.32 |
+
+The two MoMu R@20 figures land within **0.05** of the paper's 68.5 and 64.8.
+Because I have the published values for those two metrics only, the remaining
+fourteen are reported without a reference number rather than claimed as matches.
+
+Re-ranking lifts PCDes graph-to-text accuracy by **10.51** points (37.69 →
+48.20) and text-to-graph by **10.60**. The paper credits re-ranking with +8.3 on
+its own configuration. Reproducing the direction and rough magnitude of a
+mechanism's contribution is the falsifiable part; the exact delta depends on
+which split and setting the paper averaged over.
+
+One sanity check the logs happen to supply: every `val_*` row is identical
+between the PCDes job and the MoMu job. Since `--use_phy_eval` swaps only the
+test split, that identity is what correct runs produce. Divergence there would
+have meant state leaking between jobs.
+
+## 9. What the cluster adds beyond the local runs
+
+Every cluster condition ran the **full 3300-molecule split**, which extends two
+axes the laptop could only sample:
+
+| Sweep | Condition | BLEU-2 |
+|---|---|---|
+| Beam width | 1 beam | 61.53 |
+| | 2 beams | 62.16 |
+| | 3 beams | 62.29 |
+| | 4 beams | 62.28 |
+| | 5 beams (default) | 62.32 |
+| Rewiring fraction | 25% of edges resampled | 23.41 |
+| | 50% | 20.19 |
+| | 100% | 20.18 |
+
+Buying 0.79 BLEU-2 in total and saturating by three beams, beam width is not
+what carries the reproduction.
+
+The rewiring sweep is the more interesting one. Damage saturates at half the
+edges: resampling every edge costs no more than resampling half of them. The
+graph channel therefore degrades sharply rather than gracefully, which fits the
+trust ladder in §5.
+
+A further cluster condition has no local counterpart: `null_shufsmiles` (21.01)
+zeroes the graph features **and** rotates the SMILES, stripping both channels of
+correct information at once. Landing below `null_graph` (27.40) while staying
+above `rewire_graph` (20.18) places it where the ladder predicts.
+
 ---
 
 ## Limitations
@@ -159,7 +231,7 @@ Verified: `shuffle_smiles[i] == shuffle_graph_rev[rot(i)]` for **983/1000**
 predictions. It is a consistency check across two code paths, not additional
 evidence. The eight conditions are seven distinct manipulations.
 
-**2. Position is confounded with modality, and remains so.** See §6 — the test
+**2. Position is confounded with modality, and remains so.** See §6: the test
 designed to resolve this failed as an instrument. Untested alternatives: retrain
 with the prompts reordered, or interpolate the position gradually.
 
@@ -184,7 +256,8 @@ this recomputation gives 28.80 on the same file). Compare only within a table.
 retraining, which was out of budget. The paper has the same gap on every
 generative table; that is not a defence.
 
-**7. Retrieval was fixed but not measured.** See the README — two real bugs were
-found and patched and the data path verified end to end, but the eval needs
-~11 GPU-hours at the paper's settings (two re-ranking passes per split, 13.4 s
-per iteration × 750 iterations × 2 splits) and did not complete.
+**7. Retrieval was measured on the cluster only.** Two real bugs were found and
+patched, and the data path was verified end to end on both machines. Locally the
+eval needs ~11 GPU-hours at the paper's settings (two re-ranking passes per
+split, 13.4 s per iteration × 750 iterations × 2 splits) and did not complete.
+The cluster ran it to completion; see §8.

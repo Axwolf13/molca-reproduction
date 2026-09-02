@@ -1,0 +1,515 @@
+[nltk_data] Downloading package wordnet to
+[nltk_data]     /home/mllp26_team007/nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!
+[nltk_data] Downloading package punkt to
+[nltk_data]     /home/mllp26_team007/nltk_data...
+[nltk_data]   Package punkt is already up-to-date!
+Seed set to 42
+Lightning automatically upgraded your loaded checkpoint from v1.9.0 to v2.3.3. To apply the upgrade to your files permanently, run `python -m pytorch_lightning.utilities.upgrade_checkpoint all_checkpoints/archived/chebi.ckpt`
+/home/mllp26_team007/molca_env/lib/python3.10/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
+  warnings.warn(
+/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/core/saving.py:191: Found keys that are in the model state dict but not in the checkpoint: ['blip2opt.opt_model.base_model.model.model.decoder.embed_tokens.weight', 'blip2opt.opt_model.base_model.model.model.decoder.embed_positions.weight', 'blip2opt.opt_model.base_model.model.model.decoder.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.0.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.1.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.2.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.3.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.4.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.5.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.6.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.7.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.8.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.9.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.10.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.11.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.12.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.13.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.14.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.15.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.16.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.17.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.18.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.19.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.20.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.21.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.22.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.k_proj.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.k_proj.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.v_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.v_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.v_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.v_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.q_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.q_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.q_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.q_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.out_proj.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.out_proj.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.out_proj.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn.out_proj.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.self_attn_layer_norm.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.fc1.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.fc1.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.fc1.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.fc1.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.fc2.base_layer.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.fc2.base_layer.bias', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.fc2.lora_A.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.fc2.lora_B.default.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.final_layer_norm.weight', 'blip2opt.opt_model.base_model.model.model.decoder.layers.23.final_layer_norm.bias', 'blip2opt.opt_model.base_model.model.lm_head.weight']
+Using 16bit Automatic Mixed Precision (AMP)
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+Missing logger folder: ./all_checkpoints/chebi_graphonly/lightning_logs
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [GPU-9e0d7699-08df-cdcf-990b-f8d5b642d8b6]
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+/home/mllp26_team007/molca_env/lib/python3.10/site-packages/transformers/generation/configuration_utils.py:572: UserWarning: `do_sample` is set to `False`. However, `top_p` is set to `0.9` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_p`.
+  warnings.warn(
+0it [00:00, ?it/s][A
+1it [00:03,  3.79s/it][A
+10it [00:03,  3.53it/s][A
+21it [00:03,  8.78it/s][A
+31it [00:04, 14.74it/s][A
+40it [00:04, 21.17it/s][A
+51it [00:04, 30.75it/s][A
+61it [00:04, 39.88it/s][A
+71it [00:04, 48.36it/s][A
+81it [00:04, 56.68it/s][A
+91it [00:04, 65.03it/s][A
+101it [00:04, 72.61it/s][A
+113it [00:04, 81.32it/s][A
+123it [00:05, 85.53it/s][A
+133it [00:05, 88.23it/s][A
+143it [00:05, 84.82it/s][A
+155it [00:05, 92.48it/s][A
+165it [00:05, 93.38it/s][A
+175it [00:05, 92.84it/s][A
+186it [00:05, 95.12it/s][A
+198it [00:05, 101.25it/s][A
+209it [00:05, 99.28it/s] [A
+220it [00:06, 100.53it/s][A
+231it [00:06, 102.23it/s][A
+243it [00:06, 105.90it/s][A
+254it [00:06, 104.06it/s][A
+265it [00:06, 102.27it/s][A
+276it [00:06, 96.89it/s] [A
+286it [00:06, 93.16it/s][A
+296it [00:06, 94.37it/s][A
+307it [00:06, 94.90it/s][A
+317it [00:07, 88.99it/s][A
+328it [00:07, 90.29it/s][A
+340it [00:07, 95.34it/s][A
+350it [00:07, 94.81it/s][A
+362it [00:07, 99.52it/s][A
+373it [00:07, 101.45it/s][A
+384it [00:07, 101.50it/s][A
+395it [00:07, 100.09it/s][A
+406it [00:07, 101.08it/s][A
+417it [00:08, 97.59it/s] [A
+427it [00:08, 97.24it/s][A
+437it [00:08, 97.80it/s][A
+447it [00:08, 98.39it/s][A
+457it [00:08, 96.29it/s][A
+469it [00:08, 100.08it/s][A
+480it [00:08, 102.70it/s][A
+492it [00:08, 103.91it/s][A
+503it [00:08, 99.67it/s] [A
+515it [00:09, 103.02it/s][A
+526it [00:09, 100.33it/s][A
+538it [00:09, 101.80it/s][A
+549it [00:09, 98.34it/s] [A
+560it [00:09, 100.37it/s][A
+571it [00:09, 100.22it/s][A
+582it [00:09, 98.34it/s] [A
+593it [00:09, 99.59it/s][A
+603it [00:09, 99.08it/s][A
+613it [00:10, 94.83it/s][A
+625it [00:10, 100.48it/s][A
+637it [00:10, 105.60it/s][A
+648it [00:10, 106.43it/s][A
+659it [00:10, 105.71it/s][A
+670it [00:10, 104.48it/s][A
+681it [00:10, 100.22it/s][A
+692it [00:10, 98.85it/s] [A
+702it [00:10, 97.98it/s][A
+714it [00:10, 103.34it/s][A
+725it [00:11, 98.61it/s] [A
+735it [00:11, 97.07it/s][A
+745it [00:11, 95.13it/s][A
+756it [00:11, 97.45it/s][A
+767it [00:11, 98.98it/s][A
+777it [00:11, 98.51it/s][A
+788it [00:11, 97.91it/s][A
+798it [00:11, 97.02it/s][A
+808it [00:11, 94.19it/s][A
+818it [00:12, 92.38it/s][A
+829it [00:12, 94.74it/s][A
+839it [00:12, 94.83it/s][A
+851it [00:12, 101.44it/s][A
+863it [00:12, 105.00it/s][A
+874it [00:12, 106.21it/s][A
+885it [00:12, 104.25it/s][A
+896it [00:12, 104.14it/s][A
+907it [00:12, 103.07it/s][A
+918it [00:13, 97.51it/s] [A
+929it [00:13, 100.42it/s][A
+940it [00:13, 102.36it/s][A
+952it [00:13, 105.41it/s][A
+963it [00:13, 104.18it/s][A
+974it [00:13, 104.42it/s][A
+985it [00:13, 98.80it/s] [A
+995it [00:13, 97.31it/s][A
+1005it [00:13, 97.39it/s][A
+1017it [00:14, 102.28it/s][A
+1028it [00:14, 99.12it/s] [A
+1038it [00:14, 96.72it/s][A
+1048it [00:14, 97.47it/s][A
+1059it [00:14, 99.56it/s][A
+1069it [00:14, 97.83it/s][A
+1079it [00:14, 97.92it/s][A
+1089it [00:14, 97.87it/s][A
+1099it [00:14, 96.57it/s][A
+1110it [00:14, 98.84it/s][A
+1121it [00:15, 98.50it/s][A
+1132it [00:15, 100.84it/s][A
+1143it [00:15, 100.87it/s][A
+1154it [00:15, 95.94it/s] [A
+1164it [00:15, 94.31it/s][A
+1174it [00:15, 92.93it/s][A
+1184it [00:15, 94.83it/s][A
+1194it [00:15, 95.57it/s][A
+1205it [00:15, 96.66it/s][A
+1215it [00:16, 96.14it/s][A
+1225it [00:16, 93.53it/s][A
+1237it [00:16, 97.60it/s][A
+1249it [00:16, 102.55it/s][A
+1260it [00:16, 100.13it/s][A
+1274it [00:16, 109.85it/s][A
+1286it [00:16, 96.27it/s] [A
+1296it [00:16, 96.32it/s][A
+1306it [00:17, 95.99it/s][A
+1316it [00:17, 93.57it/s][A
+1326it [00:17, 92.43it/s][A
+1336it [00:17, 90.47it/s][A
+1347it [00:17, 94.37it/s][A
+1357it [00:17, 95.80it/s][A
+1368it [00:17, 97.72it/s][A
+1379it [00:17, 97.18it/s][A
+1389it [00:17, 96.04it/s][A
+1399it [00:17, 96.01it/s][A
+1411it [00:18, 102.02it/s][A
+1422it [00:18, 102.71it/s][A
+1433it [00:18, 97.66it/s] [A
+1443it [00:18, 93.42it/s][A
+1453it [00:18, 93.19it/s][A
+1463it [00:18, 93.91it/s][A
+1474it [00:18, 96.12it/s][A
+1484it [00:18, 90.88it/s][A
+1495it [00:18, 94.20it/s][A
+1505it [00:19, 92.11it/s][A
+1515it [00:19, 89.64it/s][A
+1525it [00:19, 91.38it/s][A
+1535it [00:19, 91.73it/s][A
+1545it [00:19, 91.10it/s][A
+1555it [00:19, 89.37it/s][A
+1564it [00:19, 88.94it/s][A
+1573it [00:19, 86.86it/s][A
+1585it [00:19, 92.69it/s][A
+1596it [00:20, 94.28it/s][A
+1606it [00:20, 94.66it/s][A
+1618it [00:20, 99.76it/s][A
+1628it [00:20, 99.24it/s][A
+1639it [00:20, 100.10it/s][A
+1650it [00:20, 102.65it/s][A
+1661it [00:20, 100.04it/s][A
+1672it [00:20, 98.99it/s] [A
+1683it [00:20, 100.91it/s][A
+1694it [00:21, 100.40it/s][A
+1705it [00:21, 95.56it/s] [A
+1715it [00:21, 96.37it/s][A
+1725it [00:21, 95.06it/s][A
+1735it [00:21, 94.35it/s][A
+1745it [00:21, 93.29it/s][A
+1755it [00:21, 93.53it/s][A
+1765it [00:21, 92.93it/s][A
+1776it [00:21, 96.62it/s][A
+1787it [00:22, 99.64it/s][A
+1797it [00:22, 92.92it/s][A
+1809it [00:22, 99.50it/s][A
+1820it [00:22, 96.48it/s][A
+1830it [00:22, 91.71it/s][A
+1840it [00:22, 92.28it/s][A
+1850it [00:22, 94.30it/s][A
+1860it [00:22, 91.73it/s][A
+1871it [00:22, 96.02it/s][A
+1881it [00:23, 91.26it/s][A
+1891it [00:23, 92.20it/s][A
+1902it [00:23, 96.35it/s][A
+1913it [00:23, 98.79it/s][A
+1923it [00:23, 95.76it/s][A
+1934it [00:23, 96.04it/s][A
+1945it [00:23, 96.78it/s][A
+1955it [00:23, 96.72it/s][A
+1965it [00:23, 96.92it/s][A
+1976it [00:24, 96.28it/s][A
+1986it [00:24, 95.99it/s][A
+1996it [00:24, 92.42it/s][A
+2007it [00:24, 97.04it/s][A
+2017it [00:24, 96.82it/s][A
+2027it [00:24, 93.31it/s][A
+2037it [00:24, 92.35it/s][A
+2048it [00:24, 97.14it/s][A
+2059it [00:24, 100.61it/s][A
+2071it [00:25, 104.86it/s][A
+2082it [00:25, 103.38it/s][A
+2093it [00:25, 100.32it/s][A
+2104it [00:25, 99.05it/s] [A
+2114it [00:25, 91.35it/s][A
+2124it [00:25, 92.47it/s][A
+2134it [00:25, 93.35it/s][A
+2144it [00:25, 94.20it/s][A
+2154it [00:25, 94.33it/s][A
+2164it [00:26, 95.75it/s][A
+2175it [00:26, 96.46it/s][A
+2185it [00:26, 96.06it/s][A
+2196it [00:26, 99.49it/s][A
+2206it [00:26, 98.74it/s][A
+2219it [00:26, 105.92it/s][A
+2230it [00:26, 96.75it/s] [A
+2240it [00:26, 95.55it/s][A
+2250it [00:26, 94.98it/s][A
+2260it [00:27, 90.68it/s][A
+2271it [00:27, 94.19it/s][A
+2283it [00:27, 101.27it/s][A
+2294it [00:27, 99.26it/s] [A
+2306it [00:27, 105.01it/s][A
+2318it [00:27, 106.61it/s][A
+2329it [00:27, 100.31it/s][A
+2341it [00:27, 104.74it/s][A
+2352it [00:27, 102.59it/s][A
+2363it [00:27, 103.85it/s][A
+2374it [00:28, 102.35it/s][A
+2385it [00:28, 96.28it/s] [A
+2397it [00:28, 101.48it/s][A
+2408it [00:28, 99.85it/s] [A
+2419it [00:28, 96.10it/s][A
+2429it [00:28, 91.34it/s][A
+2441it [00:28, 97.94it/s][A
+2451it [00:28, 93.90it/s][A
+2461it [00:29, 93.16it/s][A
+2472it [00:29, 97.35it/s][A
+2483it [00:29, 100.63it/s][A
+2494it [00:29, 99.15it/s] [A
+2506it [00:29, 103.95it/s][A
+2517it [00:29, 102.95it/s][A
+2529it [00:29, 106.11it/s][A
+2540it [00:29, 102.55it/s][A
+2552it [00:29, 105.78it/s][A
+2563it [00:30, 100.52it/s][A
+2574it [00:30, 102.14it/s][A
+2585it [00:30, 100.81it/s][A
+2596it [00:30, 99.46it/s] [A
+2606it [00:30, 97.68it/s][A
+2617it [00:30, 99.64it/s][A
+2627it [00:30, 95.89it/s][A
+2637it [00:30, 94.28it/s][A
+2647it [00:30, 91.66it/s][A
+2657it [00:30, 92.49it/s][A
+2667it [00:31, 93.80it/s][A
+2677it [00:31, 88.71it/s][A
+2687it [00:31, 91.50it/s][A
+2698it [00:31, 93.65it/s][A
+2709it [00:31, 97.33it/s][A
+2719it [00:31, 97.26it/s][A
+2729it [00:31, 97.83it/s][A
+2740it [00:31, 100.09it/s][A
+2753it [00:31, 107.25it/s][A
+2764it [00:32, 103.02it/s][A
+2777it [00:32, 107.40it/s][A
+2788it [00:32, 106.12it/s][A
+2799it [00:32, 105.60it/s][A
+2810it [00:32, 101.01it/s][A
+2823it [00:32, 107.66it/s][A
+2834it [00:32, 107.47it/s][A
+2845it [00:32, 105.38it/s][A
+2856it [00:32, 101.48it/s][A
+2869it [00:33, 106.29it/s][A
+2880it [00:33, 101.33it/s][A
+2891it [00:33, 102.77it/s][A
+2902it [00:33, 102.41it/s][A
+2913it [00:33, 101.75it/s][A
+2925it [00:33, 104.97it/s][A
+2936it [00:33, 102.59it/s][A
+2947it [00:33, 102.02it/s][A
+2959it [00:33, 105.61it/s][A
+2970it [00:34, 95.92it/s] [A
+2981it [00:34, 98.61it/s][A
+2992it [00:34, 101.50it/s][A
+3003it [00:34, 103.85it/s][A
+3014it [00:34, 103.10it/s][A
+3025it [00:34, 99.81it/s] [A
+3036it [00:34, 95.35it/s][A
+3047it [00:34, 98.42it/s][A
+3058it [00:34, 101.06it/s][A
+3069it [00:35, 98.67it/s] [A
+3079it [00:35, 96.92it/s][A
+3089it [00:35, 95.23it/s][A
+3099it [00:35, 91.46it/s][A
+3109it [00:35, 93.48it/s][A
+3120it [00:35, 97.62it/s][A
+3130it [00:35, 95.64it/s][A
+3140it [00:35, 93.20it/s][A
+3150it [00:35, 93.26it/s][A
+3160it [00:36, 91.13it/s][A
+3171it [00:36, 93.16it/s][A
+3182it [00:36, 95.97it/s][A
+3192it [00:36, 96.96it/s][A
+3202it [00:36, 96.44it/s][A
+3214it [00:36, 102.19it/s][A
+3225it [00:36, 101.65it/s][A
+3236it [00:36, 98.17it/s] [A
+3247it [00:36, 101.03it/s][A
+3258it [00:37, 100.83it/s][A
+3269it [00:37, 103.13it/s][A
+3280it [00:37, 101.96it/s][A
+3292it [00:37, 104.17it/s][A
+3300it [00:37, 88.20it/s] 
+/home/mllp26_team007/molca_env/lib/python3.10/site-packages/nltk/translate/bleu_score.py:577: UserWarning: 
+The hypothesis contains 0 counts of 2-gram overlaps.
+Therefore the BLEU score evaluates to 0, independently of
+how many N-gram overlaps of lower order it contains.
+Consider using lower n-gram order or use SmoothingFunction()
+  warnings.warn(_msg)
+/home/mllp26_team007/molca_env/lib/python3.10/site-packages/nltk/translate/bleu_score.py:577: UserWarning: 
+The hypothesis contains 0 counts of 3-gram overlaps.
+Therefore the BLEU score evaluates to 0, independently of
+how many N-gram overlaps of lower order it contains.
+Consider using lower n-gram order or use SmoothingFunction()
+  warnings.warn(_msg)
+/home/mllp26_team007/molca_env/lib/python3.10/site-packages/nltk/translate/bleu_score.py:577: UserWarning: 
+The hypothesis contains 0 counts of 4-gram overlaps.
+Therefore the BLEU score evaluates to 0, independently of
+how many N-gram overlaps of lower order it contains.
+Consider using lower n-gram order or use SmoothingFunction()
+  warnings.warn(_msg)
+0it [00:00, ?it/s][A
+21it [00:00, 203.89it/s][A
+42it [00:00, 202.35it/s][A
+63it [00:00, 201.21it/s][A
+84it [00:00, 196.69it/s][A
+104it [00:00, 195.19it/s][A
+124it [00:00, 195.47it/s][A
+144it [00:00, 194.04it/s][A
+165it [00:00, 197.98it/s][A
+185it [00:00, 192.81it/s][A
+206it [00:01, 196.86it/s][A
+226it [00:01, 195.17it/s][A
+246it [00:01, 192.39it/s][A
+266it [00:01, 193.16it/s][A
+286it [00:01, 193.54it/s][A
+306it [00:01, 192.13it/s][A
+326it [00:01, 190.78it/s][A
+347it [00:01, 194.96it/s][A
+367it [00:01, 194.68it/s][A
+390it [00:01, 203.76it/s][A
+411it [00:02, 199.48it/s][A
+432it [00:02, 202.37it/s][A
+455it [00:02, 209.40it/s][A
+476it [00:02, 205.97it/s][A
+497it [00:02, 196.91it/s][A
+518it [00:02, 196.54it/s][A
+542it [00:02, 208.15it/s][A
+563it [00:02, 206.53it/s][A
+584it [00:02, 204.71it/s][A
+605it [00:03, 201.94it/s][A
+626it [00:03, 197.90it/s][A
+649it [00:03, 199.62it/s][A
+669it [00:03, 193.94it/s][A
+689it [00:03, 191.55it/s][A
+711it [00:03, 198.45it/s][A
+732it [00:03, 197.70it/s][A
+752it [00:03, 195.13it/s][A
+772it [00:03, 192.66it/s][A
+792it [00:04, 194.59it/s][A
+812it [00:04, 190.01it/s][A
+832it [00:04, 191.05it/s][A
+858it [00:04, 208.99it/s][A
+879it [00:04, 201.74it/s][A
+902it [00:04, 208.51it/s][A
+923it [00:04, 208.29it/s][A
+944it [00:04, 204.10it/s][A
+965it [00:04, 200.74it/s][A
+986it [00:04, 190.02it/s][A
+1006it [00:05, 186.78it/s][A
+1026it [00:05, 190.10it/s][A
+1048it [00:05, 196.05it/s][A
+1068it [00:05, 197.06it/s][A
+1090it [00:05, 201.88it/s][A
+1111it [00:05, 203.80it/s][A
+1132it [00:05, 199.12it/s][A
+1152it [00:05, 191.59it/s][A
+1172it [00:05, 192.78it/s][A
+1194it [00:06, 200.43it/s][A
+1215it [00:06, 195.83it/s][A
+1235it [00:06, 196.73it/s][A
+1257it [00:06, 202.72it/s][A
+1280it [00:06, 208.23it/s][A
+1301it [00:06, 201.15it/s][A
+1324it [00:06, 208.03it/s][A
+1345it [00:06, 198.58it/s][A
+1366it [00:06, 201.64it/s][A
+1388it [00:06, 206.46it/s][A
+1409it [00:07, 204.78it/s][A
+1431it [00:07, 208.76it/s][A
+1452it [00:07, 203.05it/s][A
+1473it [00:07, 197.18it/s][A
+1493it [00:07, 197.52it/s][A
+1513it [00:07, 195.26it/s][A
+1535it [00:07, 201.49it/s][A
+1556it [00:07, 199.32it/s][A
+1576it [00:07, 197.28it/s][A
+1600it [00:08, 205.46it/s][A
+1621it [00:08, 206.09it/s][A
+1643it [00:08, 205.65it/s][A
+1664it [00:08, 204.22it/s][A
+1689it [00:08, 216.61it/s][A
+1711it [00:08, 206.65it/s][A
+1732it [00:08, 203.83it/s][A
+1753it [00:08, 199.94it/s][A
+1778it [00:08, 213.55it/s][A
+1800it [00:08, 215.11it/s][A
+1822it [00:09, 208.27it/s][A
+1844it [00:09, 211.21it/s][A
+1866it [00:09, 212.29it/s][A
+1889it [00:09, 214.78it/s][A
+1911it [00:09, 210.93it/s][A
+1933it [00:09, 201.88it/s][A
+1954it [00:09, 203.95it/s][A
+1976it [00:09, 205.96it/s][A
+2002it [00:09, 219.53it/s][A
+2025it [00:10, 218.67it/s][A
+2047it [00:10, 206.82it/s][A
+2068it [00:10, 207.05it/s][A
+2089it [00:10, 206.77it/s][A
+2110it [00:10, 203.15it/s][A
+2132it [00:10, 207.43it/s][A
+2153it [00:10, 206.55it/s][A
+2177it [00:10, 213.79it/s][A
+2199it [00:10, 211.43it/s][A
+2221it [00:11, 204.61it/s][A
+2242it [00:11, 200.32it/s][A
+2263it [00:11, 199.50it/s][A
+2283it [00:11, 195.87it/s][A
+2307it [00:11, 205.06it/s][A
+2328it [00:11, 203.24it/s][A
+2354it [00:11, 218.39it/s][A
+2376it [00:11, 212.53it/s][A
+2398it [00:11, 201.72it/s][A
+2421it [00:11, 208.66it/s][A
+2443it [00:12, 206.10it/s][A
+2464it [00:12, 200.90it/s][A
+2488it [00:12, 209.31it/s][A
+2511it [00:12, 213.12it/s][A
+2533it [00:12, 212.57it/s][A
+2555it [00:12, 212.63it/s][A
+2577it [00:12, 205.11it/s][A
+2601it [00:12, 214.46it/s][A
+2623it [00:12, 207.17it/s][A
+2644it [00:13, 194.23it/s][A
+2664it [00:13, 195.52it/s][A
+2684it [00:13, 185.57it/s][A
+2706it [00:13, 193.30it/s][A
+2726it [00:13, 194.96it/s][A
+2751it [00:13, 208.13it/s][A
+2772it [00:13, 205.66it/s][A
+2793it [00:13, 205.16it/s][A
+2814it [00:13, 202.07it/s][A
+2835it [00:14, 201.95it/s][A
+2858it [00:14, 208.21it/s][A
+2880it [00:14, 208.51it/s][A
+2901it [00:14, 207.75it/s][A
+2923it [00:14, 209.35it/s][A
+2950it [00:14, 224.83it/s][A
+2973it [00:14, 221.98it/s][A
+2996it [00:14, 218.52it/s][A
+3018it [00:14, 212.43it/s][A
+3041it [00:14, 216.98it/s][A
+3064it [00:15, 218.94it/s][A
+3086it [00:15, 203.10it/s][A
+3107it [00:15, 193.96it/s][A
+3127it [00:15, 191.84it/s][A
+3147it [00:15, 186.70it/s][A
+3166it [00:15, 181.93it/s][A
+3187it [00:15, 189.23it/s][A
+3210it [00:15, 200.70it/s][A
+3233it [00:15, 208.96it/s][A
+3255it [00:16, 209.71it/s][A
+3277it [00:16, 206.14it/s][A

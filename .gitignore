@@ -220,6 +220,7 @@ __marimo__/
 # ---- MolCA reproduction: large artifacts, obtain per ENVIRONMENT.md ----
 MolCA/                 # upstream clone; we ship patches/molca.diff instead
 molca_venv/
+molca_env/            # the cluster venv name
 models/
 *.ckpt
 *.bin
@@ -230,3 +231,4 @@ all_checkpoints/
 
 # run logs ARE part of the record here (the template's *.log rule would hide them)
 !results/logs/*.log
+!cluster/runlogs/*.log

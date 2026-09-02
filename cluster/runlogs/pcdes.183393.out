@@ -1,0 +1,90 @@
+==========
+== CUDA ==
+==========
+CUDA Version 12.1.1
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+=========================================
+accelerator = gpu
+batch_size = 64
+bert_hidden_dim = 768
+bert_name = scibert
+check_val_every_n_epoch = 1
+cross_attention_freq = 2
+devices = [0]
+drop_ratio = 0.0
+filename = pcdes_evaluation
+filtered_cid_path = None
+gin_hidden_dim = 300
+gin_num_layers = 5
+graph_aug = dnodes
+gtm = True
+init_checkpoint = all_checkpoints/stage1.ckpt
+init_lr = 0.0001
+lm = True
+lr_decay_rate = 0.9
+match_batch_size = 64
+max_epochs = 50
+min_lr = 1e-05
+mode = eval
+num_query_token = 8
+num_workers = 4
+precision = 16-mixed
+projection_dim = 256
+rerank_cand_num = 128
+retrieval_eval_epoch = 10
+root = data/kv_data
+save_every_n_epochs = 10
+scheduler = linear_warmup_cosine_lr
+seed = 42
+temperature = 0.1
+text_aug = False
+text_max_len = 128
+tune_gnn = False
+use_phy_eval = False
+use_smiles = False
+warmup_lr = 1e-06
+warmup_steps = 1000
+weight_decay = 0.05
+=========================================
+bert load scibert
+loading model from all_checkpoints/stage1.ckpt
+total params: 178768185
+Loading dataset
+[0]
+Validation DataLoader 0:  21%|██        | 5/24 [00:00<00:03,  6.05it/s] 
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃        Validate metric        ┃         DataLoader 0          ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│  rerank_test_fullset_g2t_acc  │       48.20000076293945       │
+│ rerank_test_fullset_g2t_rec20 │       85.55999755859375       │
+│  rerank_test_fullset_t2g_acc  │      45.959999084472656       │
+│ rerank_test_fullset_t2g_rec20 │       82.22000122070312       │
+│  rerank_test_inbatch_g2t_acc  │       86.41999816894531       │
+│ rerank_test_inbatch_g2t_rec20 │       99.80000305175781       │
+│  rerank_test_inbatch_t2g_acc  │       84.76000213623047       │
+│ rerank_test_inbatch_t2g_rec20 │             98.5              │
+│  rerank_val_inbatch_g2t_acc   │             88.0              │
+│ rerank_val_inbatch_g2t_rec20  │       99.7300033569336        │
+│  rerank_val_inbatch_t2g_acc   │       84.80000305175781       │
+│ rerank_val_inbatch_t2g_rec20  │       98.52999877929688       │
+│     test_fullset_g2t_acc      │      37.689998626708984       │
+│    test_fullset_g2t_rec20     │       80.58999633789062       │
+│     test_fullset_t2g_acc      │       35.36000061035156       │
+│    test_fullset_t2g_rec20     │       76.55000305175781       │
+│     test_inbatch_g2t_acc      │       80.88999938964844       │
+│    test_inbatch_g2t_rec20     │       98.02999877929688       │
+│     test_inbatch_t2g_acc      │       77.8499984741211        │
+│    test_inbatch_t2g_rec20     │             97.5              │
+│      val_fullset_g2t_acc      │       50.33000183105469       │
+│     val_fullset_g2t_rec20     │       86.4000015258789        │
+│      val_fullset_t2g_acc      │      45.470001220703125       │
+│     val_fullset_t2g_rec20     │       82.87000274658203       │
+│      val_inbatch_g2t_acc      │       82.4000015258789        │
+│     val_inbatch_g2t_rec20     │       97.52999877929688       │
+│      val_inbatch_t2g_acc      │       78.87000274658203       │
+│     val_inbatch_t2g_rec20     │       97.19999694824219       │
+└───────────────────────────────┴───────────────────────────────┘

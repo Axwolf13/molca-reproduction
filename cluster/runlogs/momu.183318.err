@@ -1,0 +1,56 @@
+Seed set to 42
+/home/mllp26_team007/molca_env/lib/python3.10/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
+  warnings.warn(
+Using 16bit Automatic Mixed Precision (AMP)
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [GPU-35441559-b7c3-51c1-2be7-338f211b7bc4]
+Traceback (most recent call last):
+  File "/home/mllp26_team007/MolCA/stage1.py", line 103, in <module>
+    main(args)
+  File "/home/mllp26_team007/MolCA/stage1.py", line 68, in main
+    trainer.validate(model, datamodule=dm)
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/trainer/trainer.py", line 644, in validate
+    return call._call_and_handle_interrupt(
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/trainer/call.py", line 44, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/trainer/trainer.py", line 684, in _validate_impl
+    results = self._run(model, ckpt_path=ckpt_path)
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/trainer/trainer.py", line 986, in _run
+    results = self._run_stage()
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/trainer/trainer.py", line 1023, in _run_stage
+    return self._evaluation_loop.run()
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/loops/utilities.py", line 182, in _decorator
+    return loop_run(self, *args, **kwargs)
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/loops/evaluation_loop.py", line 128, in run
+    batch, batch_idx, dataloader_idx = next(data_fetcher)
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/loops/fetchers.py", line 133, in __next__
+    batch = super().__next__()
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/loops/fetchers.py", line 60, in __next__
+    batch = next(self.iterator)
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/utilities/combined_loader.py", line 341, in __next__
+    out = next(self._iterator)
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/utilities/combined_loader.py", line 142, in __next__
+    out = next(self.iterators[0])
+  File "/opt/conda/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 631, in __next__
+    data = self._next_data()
+  File "/opt/conda/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 1346, in _next_data
+    return self._process_data(data)
+  File "/opt/conda/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 1372, in _process_data
+    data.reraise()
+  File "/opt/conda/lib/python3.10/site-packages/torch/_utils.py", line 705, in reraise
+    raise exception
+TypeError: Caught TypeError in DataLoader worker process 0.
+Original Traceback (most recent call last):
+  File "/opt/conda/lib/python3.10/site-packages/torch/utils/data/_utils/worker.py", line 308, in _worker_loop
+    data = fetcher.fetch(index)  # type: ignore[possibly-undefined]
+  File "/opt/conda/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 51, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/opt/conda/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 51, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/home/mllp26_team007/MolCA/data_provider/pretrain_dataset.py", line 73, in __getitem__
+    text, mask = self.tokenizer_text(text)
+  File "/home/mllp26_team007/MolCA/data_provider/pretrain_dataset.py", line 78, in tokenizer_text
+    sentence_token = self.tokenizer(text=text,
+TypeError: 'NoneType' object is not callable

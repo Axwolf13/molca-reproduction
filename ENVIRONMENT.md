@@ -75,6 +75,29 @@ The README documents these under `all_checkpoints/share/`, a directory absent
 from the released repository. The files actually sit under `archived/` and at
 the repository root.
 
+## The Second Machine
+
+A parallel set of runs went through the Saarland CS HTCondor pool, where the
+environment is deliberately unlike this one. Documenting both is the point:
+a reproduction that only holds on the machine that produced it is not a
+reproduction.
+
+| | Laptop (this file) | Cluster (`cluster/environment_cluster_linux.txt`) |
+|---|---|---|
+| Python | 3.13.2 | 3.10 |
+| torch | 2.13.0 / CUDA 12.6 | 2.3.1 / CUDA 12.1 |
+| transformers | 4.46.3 | 4.44.2 |
+| numpy | 2.x | 1.26.4 |
+| peft | 0.13.2 | 0.12.0 |
+| LAVIS | vendored, four edits | `salesforce-lavis==1.0.2`, pip-installed |
+| Base image | none | `pytorch/pytorch:2.3.1-cuda12.1-cudnn8-devel` |
+
+Two details are worth carrying forward. The cluster could install
+`salesforce-lavis` outright, since Python 3.10 still has wheels for its
+dependency tree; vendoring was forced by 3.13 rather than chosen. And the P100
+rejected bfloat16 with a dtype mismatch, which means patch A2 was load-bearing
+on both machines. `cluster/README.md` records the failing job.
+
 ## Hardware Notes
 
 I ran everything on an RTX 4060 Laptop with 8 GB of VRAM, which constrains the
@@ -99,7 +122,7 @@ runs. Running `git diff` inside `MolCA/` reproduces the exact change set.
 
 | Group | Count | Purpose |
 |---|---|---|
-| A | 6 | Portability |
+| A | 5 | Portability |
 | B | 4 | Ablation harness |
 | C | 2 | Harness convenience |
 | D | 3 | Retrieval path |

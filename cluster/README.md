@@ -1,0 +1,119 @@
+# The Cluster Runs
+
+Everything in this directory comes from the Saarland CS HTCondor pool rather
+than from the laptop that produced `../results/`. Two machines, two software
+stacks, one checkpoint. Holding the model fixed while changing almost everything
+around it is what turns a single number into a reproduction.
+
+## Configuration
+
+| | Cluster (this directory) | Local (`../results/`) |
+|---|---|---|
+| GPU | Tesla P100, one per job | RTX 4060 Laptop, 8 GB |
+| Scheduler | HTCondor, `universe = docker` | none, a bash supervisor |
+| Base image | `pytorch/pytorch:2.3.1-cuda12.1-cudnn8-devel` | n/a |
+| Python | 3.10 | 3.13.2 |
+| torch | 2.3.1 / CUDA 12.1 | 2.13.0 / CUDA 12.6 |
+| transformers | 4.44.2 | 4.46.3 |
+| LAVIS | `salesforce-lavis==1.0.2`, installed | hand-vendored under `../vendor/lavis/` |
+| Precision | `16-mixed` | `16-mixed` |
+| Inference batch | 8 | 4 |
+| Test split | full 3300 molecules, every condition | 3300 for two conditions, first 1000 for the rest |
+
+Every condition here ran the **complete 3300-molecule CheBI-20 test split**. On
+the laptop only `baseline` and `shuffle_graph` reached the full split, because a
+single 8 GB card puts each run near two hours. The condition matrix there uses
+the first 1000 molecules, landing within 0.12 BLEU-2 of the full split.
+
+Because the two stacks differ in Python version, torch major, transformers
+version, LAVIS provenance, and batch size, small numeric differences between
+this directory and `../results/` are expected rather than alarming. The full
+split gives 62.32 here against 62.77 locally, a spread of 0.45 on a checkpoint
+the paper reports at 62.0.
+
+## Checkpoints
+
+The upstream README points readers at `all_checkpoints/share/`. No such
+directory exists in the release. Every job below loads instead from:
+
+```
+all_checkpoints/archived/chebi.ckpt
+all_checkpoints/archived/chebi_lora/
+all_checkpoints/stage1.ckpt
+```
+
+All three come from the [`acharkq/MolCA`](https://github.com/acharkq/MolCA)
+release. None of them is redistributed here.
+
+## What Is in This Directory
+
+| Path | Contents |
+|---|---|
+| `results/results.txt` | Pipeline BLEU-2, BLEU-4, METEOR and wall time for 17 jobs |
+| `results/results_retrieval.txt` | Stage-1 retrieval, raw Lightning output |
+| `results/results_multimetric.txt` | Channel conflict across BLEU-2, BLEU-4, ROUGE-L, METEOR |
+| `results/results_class_fuzzy.txt` | Chemical-class agreement under three matching rules |
+| `predictions/` | 17 prediction files, one per job, as JSONL |
+| `runlogs/` | Condor `.out` and `.err` for every job, including the failures |
+| `scripts/` | The `.sub` submit files, their `.sh` payloads, and three analysis scripts |
+| `patches_cluster.diff` | The source patches applied on the cluster |
+| `environment_cluster_linux.txt` | `pip freeze` from the cluster virtualenv |
+
+The result files keep their original formatting, box-drawing characters
+included. Unedited tool output is stronger evidence than a table I retyped.
+
+## Retrieval
+
+Retrieval is the one task the cluster finished and the laptop did not. Local
+runs need roughly 11 GPU-hours for two re-ranking passes across both splits,
+which never fit into a night.
+
+Full-test-set figures, lifted from `results/results_retrieval.txt`:
+
+| Split | Direction | Accuracy | R@20 | Accuracy (re-ranked) | R@20 (re-ranked) |
+|---|---|---|---|---|---|
+| PCDes | graph → text | 37.69 | 80.59 | 48.20 | 85.56 |
+| PCDes | text → graph | 35.36 | 76.55 | 45.96 | 82.22 |
+| MoMu | graph → text | 22.47 | **68.45** | 30.55 | 76.77 |
+| MoMu | text → graph | 21.14 | **64.76** | 29.68 | 73.32 |
+
+The two bolded figures sit within 0.05 of the paper's 68.5 and 64.8. Re-ranking
+the top-128 contrastive candidates with the matching head lifts PCDes
+graph-to-text accuracy from 37.69 to 48.20, reproducing the direction and
+roughly the magnitude of the gain the paper attributes to that step.
+
+One incidental check worth recording: the `val_*` rows are byte-identical
+between the PCDes job and the MoMu job. Since `--use_phy_eval` swaps only the
+test split, that identity is what a correct run should produce. Its absence
+would have signalled state leaking between jobs.
+
+## Two Findings the Logs Preserve
+
+**bf16 does not survive on this hardware.** Job `183283` ran under
+`precision = bf16-mixed`. Job `183286` then died with `Index put requires the
+source and destination dtypes match, got BFloat16 for the destination and Half
+for the source`, which traces back to `blip2_opt.py` hardcoding bfloat16 in two
+of its three model-loading branches. Both jobs are in `runlogs/`. The fix,
+visible in `patches_cluster.diff`, forces float16 in all three branches.
+Consequently **both machines ran fp16**, contrary to what an earlier draft of
+`../results/RESULTS.md` claimed.
+
+**The retrieval tokenizer bug reproduces identically.** `stage1.py` routes on
+the root path. Because `--root data/kv_data` contains the substring `kv`, every
+documented retrieval command goes down the `Stage1KVPLMDM` branch. That class
+never receives a tokenizer, while the dataset it builds calls one. The cluster
+patch and the local patch fix it the same way, by threading `tokenizer` through
+the constructor. Two independent stacks failing at the same line is the
+strongest evidence available that the bug is in the release rather than in
+either environment.
+
+## Reproducing a Job
+
+```bash
+cd cluster/scripts
+condor_submit chebi_eval.sub          # or any other .sub in this directory
+```
+
+Each `.sub` names its `.sh` payload, requests one GPU with 8 CPUs and 32 GB, and
+writes into `runlogs/`. The payloads activate `molca_env`, change into the
+`MolCA` checkout, and call `stage2.py` or `stage1.py` directly.

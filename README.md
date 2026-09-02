@@ -35,9 +35,10 @@ Running the released checkpoint over the full 3300-molecule CheBI-20 test split:
 | RTX 4060 Laptop (local) | **62.77** |
 
 Three measurements of one checkpoint span 0.77 BLEU-2 across two GPU
-generations, two Python versions, two torch majors, and a precision change from
-bf16 to fp16. Because I also hand-vendored LAVIS rather than installing it, the
-software stack differs substantially between the two machines.
+generations, two Python versions, two torch majors, and two transformers
+versions. Because I also hand-vendored LAVIS on the laptop rather than
+installing it, the software stack differs substantially between the two
+machines. Both ran fp16, the P100 having rejected bfloat16 outright.
 
 ### The Central Finding
 
@@ -61,6 +62,20 @@ against a near-zero floor, the ratio runs about 9:1.
 
 Corrupting the graph therefore costs roughly 2.5 times what corrupting the text
 costs, under a matched manipulation applied to each channel.
+
+### Retrieval Reproduces Too
+
+The cluster additionally reproduced the paper's Table 4 retrieval task from
+`stage1.ckpt`, once two release bugs described below were fixed:
+
+| Split, full test set | Reproduced | Paper |
+|---|---|---|
+| MoMu, graph → text R@20 | 68.45 | 68.5 |
+| MoMu, text → graph R@20 | 64.76 | 64.8 |
+
+Re-ranking the top-128 contrastive candidates with the matching head lifts PCDes
+graph-to-text accuracy from 37.69 to 48.20, reproducing the direction and rough
+magnitude of the gain the paper credits to that step.
 
 ### The Model Trusts the Graph Rather Than Hedging
 
@@ -95,6 +110,7 @@ Full numbers, controls, and limitations live in
 | `results/predictions/` | 11 prediction files, one per condition, as JSONL |
 | `results/logs/` | Run logs with progress bars stripped and repeats collapsed |
 | `vendor/lavis/` | Minimal vendored LAVIS, BSD-3-Clause, licence retained |
+| `cluster/` | The parallel P100 runs: predictions, logs, submit files, retrieval |
 
 Checkpoints, model weights, datasets, and the virtualenv stay out of the
 repository. `ENVIRONMENT.md` explains how to obtain each one.
@@ -148,7 +164,7 @@ Three further issues fall outside that table:
   sibling exposes. Three `if False:` branches in `stage1_dm.py` misdirect
   debugging further.
 
-### Retrieval: Two Real Bugs, Fixed but Not Measured
+### Retrieval: Two Real Bugs, Found and Fixed
 
 `stage1.py` routes on the root path. Because `--root data/kv_data` contains the
 substring `kv`, every documented retrieval command takes the `Stage1KVPLMDM`
@@ -165,9 +181,12 @@ branch.
    captioning, because ChEBI-20 ships `.txt` files while `kv_data` ships
    pre-pickled `.pt` graphs.
 
-I patched both, then verified the data path end to end. The evaluation itself
+I patched both, then verified the data path end to end. Locally the evaluation
 never completed: two re-ranking passes per split, at 13.4 s per iteration over
-750 iterations, works out to roughly 11 GPU-hours for both splits.
+750 iterations, works out to roughly 11 GPU-hours. On the cluster, where the
+same two bugs surfaced at the same two lines, the patched pipeline ran to
+completion. Numbers live in
+[`cluster/results/results_retrieval.txt`](cluster/results/results_retrieval.txt).
 
 ## Honest Limitations
 
