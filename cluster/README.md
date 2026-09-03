@@ -18,7 +18,8 @@ around it is what turns a single number into a reproduction.
 | LAVIS | `salesforce-lavis==1.0.2`, installed | hand-vendored under `../vendor/lavis/` |
 | Precision | `16-mixed` | `16-mixed` |
 | Inference batch | 8 | 4 |
-| Test split | full 3300 molecules, every condition | 3300 for two conditions, first 1000 for the rest |
+| Test split | full 3300 molecules, every ChEBI-20 condition | 3300 for two conditions, first 1000 for the rest |
+| Second dataset | PubChem324kV2, full 2000-molecule test split | not attempted |
 
 Every condition here ran the **complete 3300-molecule CheBI-20 test split**. On
 the laptop only `baseline` and `shuffle_graph` reached the full split, because a
@@ -49,13 +50,14 @@ release. None of them is redistributed here.
 
 | Path | Contents |
 |---|---|
-| `results/results.txt` | Pipeline BLEU-2, BLEU-4, METEOR and wall time for 17 jobs |
+| `results/results.txt` | Pipeline BLEU-2, BLEU-4, METEOR and wall time for 20 jobs |
 | `results/results_retrieval.txt` | Stage-1 retrieval, raw Lightning output |
 | `results/verify_retrieval_output.txt` | Output of `verify_retrieval.py`, all 32 metrics |
+| `results/transfer_overlap_output.txt` | Output of `../transfer_overlap.py`, the contamination split |
 | `verify_retrieval.py` | Diffs both retrieval logs against the paper's Tables 7b and 7c |
 | `results/results_multimetric.txt` | Channel conflict across BLEU-2, BLEU-4, ROUGE-L, METEOR |
 | `results/results_class_fuzzy.txt` | Chemical-class agreement under three matching rules |
-| `predictions/` | 17 prediction files, one per job, as JSONL |
+| `predictions/` | 20 prediction files, one per job, as JSONL |
 | `runlogs/` | Condor `.out` and `.err` for every job, including the failures |
 | `scripts/` | The `.sub` submit files, their `.sh` payloads, and three analysis scripts |
 | `patches_cluster.diff` | The source patches applied on the cluster |
@@ -124,6 +126,28 @@ One incidental check the logs happen to supply: every `val_*` row is identical
 between the PCDes job and the MoMu job. Since `--use_phy_eval` swaps only the
 test split, that identity is what correct runs produce. Divergence there would
 have signalled state leaking between jobs.
+
+## Cross-Dataset Transfer
+
+Three later jobs point the ChEBI-20 checkpoint at a dataset it was never
+fine-tuned on, giving the channel-conflict finding a second caption
+distribution to survive:
+
+| Job | Condition | Rows | BLEU-2 |
+|---|---|---:|---:|
+| `185367` | `pc_transfer`, normal inputs | 2000 | 49.04 |
+| `185368` | `pc_transfer_shufgraph`, neighbour's graph | 2000 | 18.63 |
+| `185369` | `pc_transfer_graphonly`, SMILES withheld | 2000 | 2.41e-154 |
+
+All three load `archived/chebi.ckpt` with `--root data/PubChem324kV2/`, so the
+weights are the ChEBI-20 ones while the split is PubChem's. The 2000 rows match
+Table 1 of the paper exactly.
+
+Do not read 49.04 against the paper's 38.7 without reading
+[`../NOTES.md`](../NOTES.md) first. Roughly a quarter of the PubChem324kV2 test
+split carries a caption that appears verbatim in ChEBI-20's training set, which
+is what the checkpoint spent 100 epochs memorising. Scoring the halves apart
+puts the memorised rows at 94.33 and the rest at 38.86.
 
 ## Two Findings the Logs Preserve
 

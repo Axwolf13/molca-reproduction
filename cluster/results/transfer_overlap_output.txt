@@ -1,0 +1,37 @@
+ChEBI-20 rows loaded: train 26407, validation 3301, test 3300
+PubChem324kV2 test rows: 2000 (1969 distinct captions)
+
+Caption-exact overlap with ChEBI-20
+  appears in ChEBI-20 train        467 / 2000  (23.35%)
+  appears in ChEBI-20 validation    54 / 2000  ( 2.70%)
+  appears in ChEBI-20 test          51 / 2000  ( 2.55%)
+  appears in any split       569 / 2000  (28.45%)
+
+  The train row is the one that matters. That is the split the
+  chebi.ckpt checkpoint was fine-tuned on for 100 epochs.
+
+BLEU-2 by subset
+  whole test split                    2000 molecules    49.04
+  caption seen in ChEBI-20 train       467 molecules    94.33
+  caption not seen in ChEBI-20 train  1533 molecules    38.86
+  contamination gap                                     +55.47
+
+95% percentile bootstrap, 2000 resamples
+  seen subset     [ 92.91,  95.68]
+  unseen subset   [ 36.59,  41.41]
+  gap             [+52.51, +58.32]  excludes 0
+
+Read the unseen number, not the headline. The paper's 38.7 is a
+PubChem324k-trained model on this same 2000-row split, so the
+honest comparison is 38.86 against 38.7, and even that assumes the
+V2 release kept the paper's split. See NOTES.md.
+
+Channel conflict on PubChem324kV2, seen and unseen scored apart
+  subset                   normal shuffled     drop
+  whole split               49.04    18.63    30.41
+  seen in ChEBI-20 train    94.33    29.13    65.20
+  not seen                  38.86    16.03    22.83
+
+  Substituting the neighbour's graph costs the model most of its
+  score on both halves, so the channel-conflict finding survives the
+  removal of the memorised rows.

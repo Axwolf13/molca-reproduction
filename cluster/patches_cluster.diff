@@ -109,6 +109,30 @@ index d875475..4db89c2 100644
          graphs = self.collater(graphs)
          smiles_prompt = [smiles_handler(p, self.mol_ph, self.is_gal)[0] for p in smiles_prompt]
          ## deal with prompt
+diff --git a/data_provider/stage2_dm.py b/data_provider/stage2_dm.py
+index 1efec37..db7aebb 100644
+--- a/data_provider/stage2_dm.py
++++ b/data_provider/stage2_dm.py
+@@ -121,6 +121,19 @@ class InferenceCollater:
+         
+     def __call__(self, batch):
+         graphs, texts, smiles_prompt = zip(*batch)
++        import os
++        if os.environ.get('MOLCA_SHUFFLE_GRAPH') == '1':
++            graphs = graphs[1:] + graphs[:1]
++        if os.environ.get('MOLCA_REWIRE_GRAPH') == '1':
++            import torch as _t, copy as _c
++            _o = []
++            for _g in graphs:
++                _g = _c.copy(_g)
++                if _g.edge_index is not None and _g.edge_index.numel() > 0:
++                    _n = int(_g.x.size(0)); _e = _g.edge_index.size(1)
++                    _g.edge_index = _t.randint(0, _n, (2, _e), dtype=_g.edge_index.dtype)
++                _o.append(_g)
++            graphs = tuple(_o)
+         graphs = self.collater(graphs)
+         smiles_prompt = [smiles_handler(p, self.mol_ph, self.is_gal, self.graph_only)[0] for p in smiles_prompt]
+ 
 diff --git a/model/blip2_opt.py b/model/blip2_opt.py
 index 832f1fa..ae99a79 100644
 --- a/model/blip2_opt.py

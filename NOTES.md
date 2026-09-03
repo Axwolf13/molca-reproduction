@@ -1,0 +1,162 @@
+# Open Questions
+
+Everything else in this repository is settled: a number was measured, checked against
+the paper, and written down. This file is the opposite. It holds the two questions I
+could not close, kept here so that the next person to open the repository does not
+quietly assume they were answered.
+
+Both concern one number.
+
+## The number in question
+
+Job 185367 evaluates the **ChEBI-20 fine-tuned checkpoint** on the **PubChem324kV2
+test split**, a pairing the authors never ran. It scores **49.04 BLEU-2**. Table 2a of
+the paper reports **38.7** for MolCA Galac1.3B on PubChem324k.
+
+The tempting reading is that a model trained on one dataset transfers to another and
+beats the model trained in-domain. That reading needs two things to hold, and only one
+of them is now established.
+
+| | Question | Status |
+|---|---|---|
+| 1 | Is PubChem324kV2 the split the paper's 38.7 was measured on? | **Open.** The evidence leans against assuming it |
+| 2 | How far do the ChEBI-20 training set and this test set overlap? | **Closed, and the answer is bad.** 23.35% verbatim overlap |
+
+Question 2 turned out to be answerable from files already in the repository, so it is
+recorded below as a finding rather than a question. Question 1 remains genuinely open.
+
+## Question 1: is PubChem324kV2 the paper's split?
+
+Unresolved. What I could establish points at "probably not identical, and definitely not
+verifiable from public artefacts."
+
+### What checks out
+
+Table 1 of the paper gives the split sizes as pretrain 298,083, train 12,000, valid
+1,000 and test 2,000. Our run emitted exactly **2000 prediction rows**, so the V2 test
+split is the same size as the paper's. Size agreement is consistent with the splits
+being the same. It does not identify them, since any 2000-row resplit would agree too.
+
+### What does not check out
+
+Tracing the upstream repository's own history puts V2 firmly after publication:
+
+| Commit | Date | What it did |
+|---|---|---|
+| `25625e5` | 2024-01-16 | Introduced `MoleculeCaptionV2` and the packed `.pt` loader |
+| `24966d1` | 2024-01-17 | Repointed the README from `acharkq/PubChem324k` to `acharkq/PubChem324kV2` |
+
+MolCA appeared at EMNLP in December 2023, with the arXiv preprint in October. Whatever
+V2 is, it was assembled **three months after the preprint and one after the
+conference**, which makes it a re-release rather than the artefact the numbers came
+from.
+
+Three further details make the original unrecoverable:
+
+- The v1 dataset `acharkq/PubChem324k` is **gone from Hugging Face**. Querying the
+  datasets API for that author returns only `PubChem324kV2` and `RNADataset`.
+- The V2 card documents nothing. Its entire description is that this is "the second
+  version of the PubChem324k Dataset used in the paper," with no split sizes, no
+  changelog, and no statement about what changed.
+- The v1 code path still exists in `data_provider/stage2_dm.py:162` but sits behind a
+  hardcoded `if False:`. Loading the paper's directory-of-files layout now requires
+  editing the source. The `--filtered_cid_path` argument that v1 used to exclude
+  downstream test molecules is unreachable on the V2 path, so whatever filtering V2
+  applies is baked into the `.pt` files and cannot be inspected from the loader.
+
+### What would settle it
+
+Nothing available locally. The `.pt` files carry a `smiles` field per row, so dumping
+the 2000 test SMILES is easy, but there is no v1 release left to compare them against.
+Closing this needs either an archived copy of `acharkq/PubChem324k` or a direct answer
+from the authors.
+
+**Until then, treat any comparison against 38.7 as approximate rather than exact.**
+
+## Question 2: the overlap, which turned out to be the real problem
+
+Run `python transfer_overlap.py` to reproduce this. It reads the prediction dumps
+from `cluster/predictions/` and needs the ChEBI-20 split files, which the
+repository does not ship. Point `--chebi` at wherever `train.txt`,
+`validation.txt` and `test.txt` live; the default assumes the upstream clone sits
+beside this directory at `../MolCA/data/ChEBI-20_data`. Saved output is in
+`cluster/results/transfer_overlap_output.txt`.
+
+Matching on caption text, which is the only molecule identifier the prediction dumps
+carry:
+
+| PubChem324kV2 test caption also appears in | Count | Share of 2000 |
+|---|---:|---:|
+| ChEBI-20 **train** | 467 | **23.35%** |
+| ChEBI-20 validation | 54 | 2.70% |
+| ChEBI-20 test | 51 | 2.55% |
+| any ChEBI-20 split | 569 | 28.45% |
+
+The train row is the one that matters, because `chebi.ckpt` was fine-tuned on that
+split for 100 epochs. Nearly a quarter of the "transfer" test set is material the
+checkpoint was trained to reproduce verbatim.
+
+### The paper permits this, and says so
+
+Section 4.1 describes the filtering:
+
+> Additionally, we filter our pretrain subset to exclude molecules from the valid/test
+> sets of other downstream datasets, including CheBI-20, PCDes, and MoMu datasets.
+
+The exclusion applies to the **pretrain subset**. The high-quality 15k subset that
+becomes train/valid/test is described one sentence earlier and is never said to be
+filtered. So the contamination is not a bug in our run. It is a property of the dataset
+that only bites when someone points a ChEBI-20 checkpoint at it, which nobody had.
+
+### Scoring the halves separately
+
+| Subset | Molecules | BLEU-2 | 95% CI |
+|---|---:|---:|---|
+| Whole test split | 2000 | 49.04 | |
+| Caption seen in ChEBI-20 train | 467 | **94.33** | [92.91, 95.68] |
+| Caption not seen | 1533 | **38.86** | [36.59, 41.41] |
+| Gap | | +55.47 | [+52.51, +58.32] |
+
+A 94.33 on the memorised quarter is recall, not captioning. Strip it out and the honest
+transfer number is **38.86**, which lands **0.16 BLEU-2 from the paper's 38.7**.
+
+That is a far more interesting result than the headline. It says transfer from ChEBI-20
+roughly matches in-domain PubChem324k training rather than beating it, though question 1
+still stands between that sentence and a clean claim.
+
+### Where this measurement is weak
+
+Caption matching is conservative in one direction only. Normalisation collapses
+whitespace and folds case, nothing more, so a molecule whose PubChem text differs from
+its ChEBI-20 text by a single word is counted as unseen. Real contamination is therefore
+**at least** 23.35% and the clean-half 38.86 is, if anything, slightly flattered.
+Matching on canonical SMILES would be tighter. The prediction dumps carry only
+`prediction` and `target`, so doing it properly means re-dumping identifiers from the
+cluster, which is roughly ten minutes of work the next time a job runs there.
+
+## What the contamination does not touch
+
+The channel-conflict result, which is the reason the transfer run exists, holds on both
+halves of the split:
+
+| Subset | Normal | Neighbour's graph | Drop |
+|---|---:|---:|---:|
+| Whole split | 49.04 | 18.63 | 30.41 |
+| Seen in ChEBI-20 train | 94.33 | 29.13 | 65.20 |
+| Not seen | 38.86 | 16.03 | 22.83 |
+
+Substituting the neighbouring molecule's graph costs 22.83 BLEU-2 even on the 1533
+molecules the checkpoint never trained on. Since the finding replicates on a second
+dataset, under a second caption distribution, on data the model has provably not seen,
+contamination cannot explain it.
+
+## For whoever picks this up
+
+1. **Do not quote 49.04 as a transfer result.** Quote 38.86, and say what was removed.
+2. Re-dump test-set CIDs or canonical SMILES from the cluster and redo the overlap on
+   structures rather than captions. That converts "at least 23.35%" into a real number.
+3. Look for an archived copy of `acharkq/PubChem324k`, or ask the authors directly
+   whether V2 preserved the split. Either closes question 1.
+4. If question 1 closes favourably, the 38.86 against 38.7 comparison becomes worth
+   writing up properly. If it does not, the transfer run still carries the channel
+   conflict replication, which never depended on the comparison.

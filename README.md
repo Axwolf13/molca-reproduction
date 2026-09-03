@@ -98,6 +98,23 @@ channel, feeding it garbage would cost no more than feeding it nothing.
 Since it costs considerably more, the language model treats those eight soft
 prompts as authoritative evidence rather than as advice.
 
+### The Conflict Replicates on a Second Dataset
+
+Pointing the ChEBI-20 checkpoint at PubChem324kV2's test split gives the finding
+a second caption distribution to survive.
+
+| Subset of the 2000 test molecules | Normal | Neighbour's graph | Drop |
+|---|---:|---:|---:|
+| Whole split | 49.04 | 18.63 | 30.41 |
+| Never seen during ChEBI-20 training | 38.86 | 16.03 | 22.83 |
+
+The split matters because 23.35% of that test set carries a caption the
+checkpoint was fine-tuned on verbatim, scoring 94.33 BLEU-2 on recall alone.
+Reading the raw 49.04 as transfer beating the paper's in-domain 38.7 would be
+wrong twice over, so **[NOTES.md](NOTES.md)** works through what the number can
+and cannot support. The conflict result needs neither reading: it holds at 22.83
+BLEU-2 on molecules the model provably never trained on.
+
 Full numbers, controls, and limitations live in
 **[results/RESULTS.md](results/RESULTS.md)**.
 
@@ -109,6 +126,8 @@ Full numbers, controls, and limitations live in
 | `analyse.py` | n-gram agreement, chemical-class agreement, per-example verdicts |
 | `bootstrap.py` | Paired bootstrap confidence intervals over the test set |
 | `cross_stack_agreement.py` | Caption-level agreement between the two machines |
+| `transfer_overlap.py` | ChEBI-20 contamination inside the PubChem324kV2 test split |
+| `NOTES.md` | The two questions about the transfer run I could not close |
 | `run_eval.sh` | A single condition |
 | `run_queue.sh` | Several conditions back to back |
 | `supervise.sh` | Resumable supervisor that skips finished conditions and retries failures |

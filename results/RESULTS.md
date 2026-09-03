@@ -317,6 +317,65 @@ not training variance; see Limitation 6.
 
 ---
 
+## 11. Cross-dataset transfer, and the contamination underneath it
+
+Three cluster jobs (`185367` to `185369`) evaluate the ChEBI-20 checkpoint on
+the PubChem324kV2 test split, a pairing the authors never ran. Every other
+result in this document lives on ChEBI-20, so this is the only place the channel
+conflict meets a second caption distribution.
+
+The headline is misleading and worth dismantling before anything else. The run
+scores **49.04 BLEU-2** where the paper's Table 2a reports **38.7** for a model
+fine-tuned on PubChem324k itself. Transfer appearing to beat in-domain training
+is exactly the kind of result that deserves suspicion.
+
+### A quarter of the test set is memorised
+
+Matching on caption text, [`../transfer_overlap.py`](../transfer_overlap.py)
+finds that **467 of the 2000 test molecules (23.35%)** carry a caption appearing
+verbatim in ChEBI-20's training split. That is the split `chebi.ckpt` was
+fine-tuned on for 100 epochs.
+
+This is not a defect in our run. Section 4.1 of the paper applies the
+downstream-test exclusion filter to the **pretrain subset** only, leaving the
+high-quality 15k subset that becomes train/valid/test unfiltered. The
+contamination sits latent in the dataset and only surfaces when a ChEBI-20
+checkpoint is pointed at it, which nobody had done.
+
+| Subset | Molecules | BLEU-2 | 95% CI |
+|---|---:|---:|---|
+| Whole test split | 2000 | 49.04 | |
+| Caption seen in ChEBI-20 train | 467 | **94.33** | [92.91, 95.68] |
+| Caption not seen | 1533 | **38.86** | [36.59, 41.41] |
+| Gap | | +55.47 | [+52.51, +58.32] |
+
+Scoring 94.33 on the memorised quarter is retrieval from weights, not
+captioning. Removing it leaves **38.86**, which sits 0.16 BLEU-2 from the
+paper's 38.7. Transfer from ChEBI-20 therefore roughly matches in-domain
+PubChem324k training rather than beating it.
+
+That comparison still carries an unresolved assumption, since PubChem324kV2 was
+released in January 2024, after both the preprint and the conference, and the v1 dataset the
+paper used is no longer downloadable. [`../NOTES.md`](../NOTES.md) documents what
+I could and could not establish there.
+
+### The conflict result does not depend on any of this
+
+| Subset | Normal | Neighbour's graph | Drop |
+|---|---:|---:|---:|
+| Whole split | 49.04 | 18.63 | 30.41 |
+| Seen in ChEBI-20 train | 94.33 | 29.13 | 65.20 |
+| Not seen | 38.86 | 16.03 | 22.83 |
+
+Substituting the neighbouring molecule's graph costs 22.83 BLEU-2 on the 1533
+molecules the checkpoint provably never trained on. Withholding the SMILES
+entirely (`185369`) collapses the run to 2.41e-154, reproducing on PubChem the
+same degenerate floor §3 found on ChEBI-20. Since the finding replicates across
+datasets, across caption styles, and on uncontaminated data, neither the overlap
+nor the split question touches it.
+
+---
+
 ## Limitations
 
 **1. `shuffle_smiles` is not an independent control.** Rotating the graph −1 and
@@ -361,3 +420,12 @@ patched, and the data path was verified end to end on both machines. Locally the
 eval needs ~11 GPU-hours at the paper's settings (two re-ranking passes per
 split, 13.4 s per iteration × 750 iterations × 2 splits) and did not complete.
 The cluster ran it to completion; see §8.
+
+**8. The transfer contamination is measured on captions, not structures.** The
+prediction dumps carry only `prediction` and `target`, so §11 matches molecules
+by normalised caption text. A molecule whose PubChem wording differs from its
+ChEBI-20 wording by one word counts as unseen, making 23.35% a floor rather than
+an estimate and the clean-half 38.86 slightly flattered. Matching canonical
+SMILES would close this, requiring a re-dump of identifiers from the cluster.
+Whether PubChem324kV2 preserves the split the paper's 38.7 was measured on is
+separately unresolved; [`../NOTES.md`](../NOTES.md) sets out both.
