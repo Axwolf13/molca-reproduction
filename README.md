@@ -157,6 +157,7 @@ Full numbers, controls, and limitations live in
 | `results/logs/` | Run logs with progress bars stripped and repeats collapsed |
 | `vendor/lavis/` | Minimal vendored LAVIS, BSD-3-Clause, licence retained |
 | `cluster/` | The parallel P100 runs: predictions, logs, submit files, retrieval |
+| `cluster/queued/` | Prepared but unrun: the structure-overlap dump and the distance experiment |
 
 Checkpoints, model weights, datasets, and the virtualenv stay out of the
 repository. `ENVIRONMENT.md` explains how to obtain each one.

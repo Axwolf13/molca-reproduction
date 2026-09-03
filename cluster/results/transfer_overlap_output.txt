@@ -1,7 +1,11 @@
 ChEBI-20 rows loaded: train 26407, validation 3301, test 3300
 PubChem324kV2 test rows: 2000 (1969 distinct captions)
 
-Caption-exact overlap with ChEBI-20
+Matching on caption text. Run cluster/queued/dump_smiles.py on the
+cluster and drop its output in cluster/results/ to match on
+canonical structures instead.
+
+Exact caption overlap with ChEBI-20
   appears in ChEBI-20 train        467 / 2000  (23.35%)
   appears in ChEBI-20 validation    54 / 2000  ( 2.70%)
   appears in ChEBI-20 test          51 / 2000  ( 2.55%)

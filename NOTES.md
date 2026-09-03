@@ -194,12 +194,13 @@ diagnosis from an inference into a measurement.
 ## For whoever picks this up
 
 1. **Do not quote 49.04 as a transfer result.** Quote 38.86, and say what was removed.
-2. Re-dump test-set CIDs or canonical SMILES from the cluster and redo the overlap on
-   structures rather than captions. That converts "at least 23.35%" into a real number.
+2. Redo the overlap on canonical structures rather than captions, converting "at least
+   23.35%" into a real number. `cluster/queued/dump_smiles.py` does the dumping and
+   `transfer_overlap.py --smiles` consumes it, so this is one cluster command away.
 3. Look for an archived copy of `acharkq/PubChem324k`, or ask the authors directly
    whether V2 preserved the split. Either closes question 1.
 4. Run `stage2.ckpt` on this split as the contamination control described above. It is
-   one job, and it converts the diagnosis into a measurement.
+   one job, and it converts the diagnosis into a measurement. **In flight.**
 5. If question 1 closes favourably, the 38.86 against 38.7 comparison becomes worth
    writing up properly. If it does not, the transfer run still carries the channel
    conflict replication, which never depended on the comparison.

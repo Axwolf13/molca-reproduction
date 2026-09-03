@@ -68,9 +68,49 @@ def ci(vals, lo=2.5, hi=97.5):
     return s[int(len(s) * lo / 100)], s[min(len(s) - 1, int(len(s) * hi / 100))]
 
 
+def load_structures(root, rows):
+    """canonical-SMILES tagging, when cluster/queued/dump_smiles.py has been run.
+
+    Returns a tag list aligned with `rows`, or None when the dumps are absent.
+    Caption matching can only miss contamination, never invent it, so this is
+    the tighter measurement and the one to prefer whenever it is available.
+    """
+    pc = os.path.join(root, "pubchem_test_smiles.jsonl")
+    ch = os.path.join(root, "chebi_smiles.jsonl")
+    if not (os.path.exists(pc) and os.path.exists(ch)):
+        return None
+
+    by_canon = {}
+    with open(ch, encoding="utf-8") as fh:
+        for line in fh:
+            rec = json.loads(line)
+            if rec["canonical"]:
+                by_canon.setdefault(rec["canonical"], set()).add(rec["split"])
+
+    dump = [json.loads(l) for l in open(pc, encoding="utf-8") if l.strip()]
+    if len(dump) != len(rows):
+        sys.exit("%s has %d rows, the prediction dump has %d"
+                 % (pc, len(dump), len(rows)))
+
+    # The dump carries the first 80 characters of each target so that row
+    # alignment is checked rather than assumed.
+    for i, (rec, row) in enumerate(zip(dump, rows)):
+        if norm(rec["text_head"])[:60] != norm(row["target"])[:60]:
+            sys.exit("row %d does not line up between the SMILES dump and the "
+                     "prediction dump. Re-dump before trusting this." % i)
+
+    unparsed = sum(1 for rec in dump if not rec["canonical"])
+    if unparsed:
+        print("  %d test SMILES would not parse, counted as unseen" % unparsed)
+    return [by_canon.get(rec["canonical"], set()) if rec["canonical"] else set()
+            for rec in dump]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--chebi", default=DEFAULT_CHEBI)
+    ap.add_argument("--smiles", default=os.path.join(HERE, "cluster", "results"),
+                    help="directory holding the dump_smiles.py output, if present")
     ap.add_argument("--resamples", type=int, default=2000)
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
@@ -109,13 +149,26 @@ def main():
         rlen.append(r)
         tags.append(chebi.get(norm(row["target"]), set()))
 
+    struct = load_structures(args.smiles, rows)
+    if struct is None:
+        print("Matching on caption text. Run cluster/queued/dump_smiles.py on the\n"
+              "cluster and drop its output in cluster/results/ to match on\n"
+              "canonical structures instead.\n")
+    else:
+        capt = sum(1 for t in tags if "train" in t)
+        stru = sum(1 for t in struct if "train" in t)
+        print("Matching on canonical SMILES. Caption matching found %d train\n"
+              "overlaps, structure matching finds %d.\n" % (capt, stru))
+        tags = struct
+
     total = len(rows)
     counts = {s: sum(s in t for t in tags) for s in ("train", "validation", "test")}
     seen_idx = [i for i, t in enumerate(tags) if "train" in t]
     any_idx = [i for i, t in enumerate(tags) if t]
     unseen_idx = [i for i, t in enumerate(tags) if "train" not in t]
 
-    print("Caption-exact overlap with ChEBI-20")
+    print("Exact %s overlap with ChEBI-20"
+          % ("canonical-structure" if struct is not None else "caption"))
     for split in ("train", "validation", "test"):
         print("  appears in ChEBI-20 %-11s %4d / %d  (%5.2f%%)"
               % (split, counts[split], total, 100.0 * counts[split] / total))
