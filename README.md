@@ -22,6 +22,23 @@ The paper never measures what the trained model does with those two views at
 the released checkpoint, feeding each molecule its own SMILES string alongside a
 different molecule's graph.
 
+### Coverage, and what the release puts out of reach
+
+| Dataset | What I ran | Why |
+|---|---|---|
+| ChEBI-20 | 17 cluster jobs, plus the local matrix | `archived/chebi.ckpt` is released |
+| PCDes + MoMu | 2 retrieval evals, 32 metrics | `stage1.ckpt` is released |
+| PubChem324kV2 | 3 transfer runs | No fine-tuned checkpoint exists, so transfer only |
+| MoleculeNet | none | Needs a trained classifier head |
+| IUPAC naming | none | Needs an IUPAC-tuned checkpoint |
+
+The last two rows are not omissions. `acharkq/MolCA` ships seven files, covering
+ChEBI-20 captioning and stage-1 retrieval and nothing else; `ENVIRONMENT.md`
+enumerates them. Property prediction and IUPAC naming would each require training
+weights the authors never released, as would reproducing Table 2a's 38.7 on
+PubChem324k directly. The experimental program is bounded by the artefact rather
+than by the budget.
+
 ## Headline Results
 
 ### Reproduction

@@ -70,10 +70,36 @@ the release, which matters because the checkpoint's weights are keyed to it.
 | `stage1.ckpt` | `acharkq/MolCA` at `stage1.ckpt` | 2.15 GB |
 | `galactica-1.3b` | `facebook/galactica-1.3b` | 2.63 GB |
 | ChEBI-20 | `data/dataset.zip`, shipped in the repo | 3300 test rows |
+| PubChem324kV2 | `acharkq/PubChem324kV2`, cluster only | 2000 test rows |
 
 The README documents these under `all_checkpoints/share/`, a directory absent
 from the released repository. The files actually sit under `archived/` and at
 the repository root.
+
+### What the release contains, in full
+
+`acharkq/MolCA` holds seven files and no more:
+
+| File | Size | What it is |
+|---|---|---|
+| `stage1.ckpt` | 2.15 GB | Stage-1 retrieval model |
+| `archived/stage1.ckpt` | 2.15 GB | Near-identical, 1679 bytes apart |
+| `stage2.ckpt` | 1.18 GB | Stage-2 **pretrained**, LM frozen, PubChem324k pretrain subset |
+| `archived/chebi.ckpt` | 1.28 GB | ChEBI-20 fine-tuned |
+| `archived/chebi_lora/adapter_model.bin` | 50 MB | Its LoRA adapter |
+| `archived/chebi_lora/adapter_config.json` | 382 B | Adapter config |
+| `.gitattributes` | 1.5 kB | |
+
+This inventory determines which tables in the paper are reachable without
+training. Only ChEBI-20 captioning and stage-1 retrieval ship as usable weights.
+Table 2a's 38.7 comes from a LoRA fine-tune on PubChem324k's train subset, 100
+epochs per Table 11, and those weights are not released. Neither are the
+MoleculeNet classifier heads nor an IUPAC-tuned checkpoint.
+
+`stage2.ckpt` is the one PubChem-native artefact, but it is the pre-fine-tune
+model. Table 8 ablates pretrain stages **after** fine-tuning in every row, so
+the paper reports no captioning score for it in this state and it cannot stand
+in for 38.7.
 
 ## The Second Machine
 

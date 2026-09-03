@@ -336,11 +336,23 @@ finds that **467 of the 2000 test molecules (23.35%)** carry a caption appearing
 verbatim in ChEBI-20's training split. That is the split `chebi.ckpt` was
 fine-tuned on for 100 epochs.
 
-This is not a defect in our run. Section 4.1 of the paper applies the
-downstream-test exclusion filter to the **pretrain subset** only, leaving the
-high-quality 15k subset that becomes train/valid/test unfiltered. The
-contamination sits latent in the dataset and only surfaces when a ChEBI-20
-checkpoint is pointed at it, which nobody had done.
+No filter the authors built could have caught this, and the reason is directional
+rather than an oversight. Section 4.1 excludes molecules from the **valid/test
+sets** of ChEBI-20, PCDes and MoMu, which protects their ChEBI-20 evaluation
+against leakage out of PubChem324k pretraining. Our run points the other way,
+and the overlap lands almost entirely on ChEBI-20's **train** split:
+
+| Overlap falls in | Count | Could the paper's filter have caught it? |
+|---|---:|---|
+| ChEBI-20 train only | 465 | No, the filter never targets train |
+| ChEBI-20 valid or test only | 102 | Only if applied to the downstream subset too |
+| Both | 2 | Partially |
+
+So even a version of the filter extended to the high-quality 15k subset would
+have removed at most 104 of the 569 matches, leaving the 467-molecule train
+overlap that does the damage. This is contamination in a direction nobody had
+reason to guard against, because until now nobody had pointed a ChEBI-20
+checkpoint at PubChem324k.
 
 | Subset | Molecules | BLEU-2 | 95% CI |
 |---|---:|---:|---|
@@ -349,10 +361,17 @@ checkpoint is pointed at it, which nobody had done.
 | Caption not seen | 1533 | **38.86** | [36.59, 41.41] |
 | Gap | | +55.47 | [+52.51, +58.32] |
 
-Scoring 94.33 on the memorised quarter is retrieval from weights, not
-captioning. Removing it leaves **38.86**, which sits 0.16 BLEU-2 from the
-paper's 38.7. Transfer from ChEBI-20 therefore roughly matches in-domain
-PubChem324k training rather than beating it.
+The split vindicates the suspicion twice over. Scoring 94.33 on the memorised
+quarter is retrieval from weights rather than captioning, and it is about as
+clean a demonstration of what contamination does to a benchmark as this study
+produced: one number, one dataset, a 55-point gap between molecules the model
+was trained to recite and molecules it was not.
+
+Removing that quarter leaves **38.86**, sitting 0.16 BLEU-2 from the paper's
+38.7. The interesting result is not the discarded 49.04 but what replaces it.
+Transferring a ChEBI-20 checkpoint to PubChem324k performs on par with training
+on PubChem324k directly, on a caption distribution and a molecule set it never
+saw.
 
 That comparison still carries an unresolved assumption, since PubChem324kV2 was
 released in January 2024, after both the preprint and the conference, and the v1 dataset the

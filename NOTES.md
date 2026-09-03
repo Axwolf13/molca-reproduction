@@ -96,17 +96,30 @@ The train row is the one that matters, because `chebi.ckpt` was fine-tuned on th
 split for 100 epochs. Nearly a quarter of the "transfer" test set is material the
 checkpoint was trained to reproduce verbatim.
 
-### The paper permits this, and says so
+### No filter the authors built could have caught this
 
 Section 4.1 describes the filtering:
 
 > Additionally, we filter our pretrain subset to exclude molecules from the valid/test
 > sets of other downstream datasets, including CheBI-20, PCDes, and MoMu datasets.
 
-The exclusion applies to the **pretrain subset**. The high-quality 15k subset that
-becomes train/valid/test is described one sentence earlier and is never said to be
-filtered. So the contamination is not a bug in our run. It is a property of the dataset
-that only bites when someone points a ChEBI-20 checkpoint at it, which nobody had.
+Two things are scoped there. The filter applies to the **pretrain subset**, leaving the
+high-quality 15k subset that becomes train/valid/test untouched. More decisively, it
+targets the **valid/test** splits of the downstream datasets, and our overlap does not
+live there:
+
+| Overlap falls in | Count | Reachable by the paper's filter? |
+|---|---:|---|
+| ChEBI-20 train only | 465 | No. The filter never targets train |
+| ChEBI-20 valid or test only | 102 | Only if extended to the downstream subset |
+| Both | 2 | Partially |
+
+Extending the filter to cover the 15k subset would still have removed at most 104 of
+the 569 matches, leaving the 467-molecule train overlap intact. The filter exists to
+protect the authors' **ChEBI-20 evaluation** from leakage out of PubChem324k
+pretraining. Our run is the reverse direction, ChEBI-20 training leaking into a
+PubChem324k evaluation, which nobody had reason to guard against because nobody had
+pointed a ChEBI-20 checkpoint at PubChem324k.
 
 ### Scoring the halves separately
 
@@ -150,6 +163,34 @@ molecules the checkpoint never trained on. Since the finding replicates on a sec
 dataset, under a second caption distribution, on data the model has provably not seen,
 contamination cannot explain it.
 
+## Why there is no PubChem-native comparison run
+
+The obvious control is a PubChem324k model on this same split, since it would be clean
+on all 467 contaminated rows. It does not exist. Enumerating the release gives seven
+files:
+
+| File | What it is |
+|---|---|
+| `stage1.ckpt`, `archived/stage1.ckpt` | Stage-1 retrieval, 1679 bytes apart |
+| `stage2.ckpt` | Stage-2 **pretrained**, LM frozen, PubChem324k pretrain subset |
+| `archived/chebi.ckpt` + `chebi_lora/` | ChEBI-20 fine-tuned, what every run here uses |
+
+Table 2a's 38.7 comes from a LoRA fine-tune on PubChem324k's train subset for 100
+epochs, and those weights never shipped. `stage2.ckpt` is PubChem-native but sits before
+the fine-tune, and since every row of Table 8 ablates the pretrain stages **after**
+fine-tuning, the paper gives no score for it in that state.
+
+This is the same wall that keeps MoleculeNet and IUPAC out of the study. Neither is a
+gap I chose to leave: property prediction needs a trained classifier head and IUPAC
+needs an IUPAC-tuned checkpoint, and the release contains neither. Transfer was the only
+way to touch PubChem324k at all.
+
+One control does remain cheap and is worth running. Evaluating `stage2.ckpt` on this
+split would be weak as a captioning number, given the missing fine-tune, but it has
+never seen ChEBI-20's train split, so its score on the 467 contaminated molecules should
+sit near its score on the other 1533. Confirming that would turn the contamination
+diagnosis from an inference into a measurement.
+
 ## For whoever picks this up
 
 1. **Do not quote 49.04 as a transfer result.** Quote 38.86, and say what was removed.
@@ -157,6 +198,8 @@ contamination cannot explain it.
    structures rather than captions. That converts "at least 23.35%" into a real number.
 3. Look for an archived copy of `acharkq/PubChem324k`, or ask the authors directly
    whether V2 preserved the split. Either closes question 1.
-4. If question 1 closes favourably, the 38.86 against 38.7 comparison becomes worth
+4. Run `stage2.ckpt` on this split as the contamination control described above. It is
+   one job, and it converts the diagnosis into a measurement.
+5. If question 1 closes favourably, the 38.86 against 38.7 comparison becomes worth
    writing up properly. If it does not, the transfer run still carries the channel
    conflict replication, which never depended on the comparison.
