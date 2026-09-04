@@ -1,0 +1,23 @@
+what                             field       expected       got  quoted in
+local baseline, 1000 molecules   bleu2          62.65     62.65  RESULTS.md sec 1, sec 2
+local baseline, full 3300 split  bleu2          62.77     62.77  README.md, RESULTS.md sec 1
+sec 6 default order              bleu2          63.16     63.16  README.md, RESULTS.md sec 6
+sec 6 default order              words          42.90     42.95  RESULTS.md sec 6
+sec 6 default order              empty              0         0  RESULTS.md sec 6
+sec 6 graph prompts first        bleu2           0.01      0.01  README.md, RESULTS.md sec 6
+sec 6 graph prompts first        words         123.00    122.97  RESULTS.md sec 6
+sec 6 graph prompts first        empty             55        55  RESULTS.md sec 6
+sec 12 baseline generation       words          42.40     42.40  RESULTS.md sec 12
+sec 12 filler between            words          37.30     37.25  RESULTS.md sec 12
+sec 12 filler between            empty              0         0  RESULTS.md sec 12
+sec 12 filler at end             words          26.00     25.97  RESULTS.md sec 12
+sec 12 filler at end             empty             54        54  RESULTS.md sec 12
+sec 12 void control              empty           1605      1605  RESULTS.md sec 12, NOTES.md
+
+All 14 checks reproduce. Every documented number without other saved
+provenance is derivable from the prediction dumps in this repository.
+
+Two figures in RESULTS.md section 6 are not covered here: the 63.10
+ROUGE-L and 66.04 METEOR in the same table. Both need `rouge_score`,
+which the local environment lacks. They come from the same run as the
+63.16 and 123.0 verified above.
