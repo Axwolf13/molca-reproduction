@@ -36,6 +36,30 @@ baseline while pushing the SMILES 37 Galactica tokens further from generation.
 That is a working instrument, and it is the reference the remaining jobs score
 against.
 
+## Run this one first
+
+`verify_pretrain_filter.py` checks the paper's own hygiene claim, and it is the
+highest-value job left. No GPU, a few minutes.
+
+Section 4.1 says the PubChem324k pretrain subset was filtered to exclude
+molecules from ChEBI-20's valid/test splits. Every headline number in this study
+depends on that holding, because `chebi.ckpt` was pretrained on that subset and
+is then evaluated on ChEBI-20's test split. Section 11 found 49.25% contamination
+running the comparison the other way, so the filter is no longer something to
+take on trust.
+
+```bash
+cd /home/mllp26_team007/MolCA
+source /home/mllp26_team007/molca_env/bin/activate
+cp <this directory>/verify_pretrain_filter.py .
+python verify_pretrain_filter.py > results_pretrain_filter.txt 2>&1
+```
+
+A zero in the pretrain-against-valid/test row confirms the filter and closes the
+question. A non-zero one means section 1's 62.32 is evaluated partly on molecules
+the checkpoint saw in pretraining, which would be the most consequential finding
+in the study and would need saying before anyone else notices.
+
 ## The four jobs
 
 | Job | Measures | Reference |
