@@ -133,6 +133,32 @@ what the comparison can and cannot support. The conflict result needs neither
 reading: substituting the graph still halves the score on molecules the model
 provably never trained on.
 
+### It Is the Modality, Not the Position
+
+The graph soft prompts sit nearest the generation point, so "the graph wins" and
+"the nearest channel wins" make the same prediction. Reordering the prompt to
+separate them destroys the model. Displacing the SMILES 37 tokens further away
+instead, leaving the template ending intact, does not.
+
+| SMILES position | Clean | Corrupting the SMILES costs | Corrupting the graph costs |
+|---|---:|---:|---:|
+| Adjacent, as shipped | 62.32 | 23.9% | 58.9% |
+| Pushed 37 tokens away | 53.60 | 21.3% | 58.3% |
+
+Recency is real: the SMILES contributes 2.6 points less once it is further away,
+and the interval excludes zero. It is also far too small to be the mechanism. The
+ratio between the channels moves from 2.46× to 2.74×, so a recency account would
+have to produce a 2.5× dominance out of an effect worth a tenth of the weaker
+channel.
+
+### The Paper's Own Contamination Filter Holds
+
+Every number here comes from a checkpoint pretrained on PubChem324k and tested on
+ChEBI-20, so §4.1's claim that the pretrain subset excludes ChEBI-20's valid and
+test molecules is load-bearing for the reproduction itself. Checked on canonical
+structures: **zero of 6601 ChEBI-20 valid/test molecules appear among the 298,010
+pretrain structures.** Exact, not approximate.
+
 Full numbers, controls, and limitations live in
 **[results/RESULTS.md](results/RESULTS.md)**.
 
@@ -145,7 +171,8 @@ Full numbers, controls, and limitations live in
 | `bootstrap.py` | Paired bootstrap confidence intervals over the test set |
 | `cross_stack_agreement.py` | Caption-level agreement between the two machines |
 | `transfer_overlap.py` | ChEBI-20 contamination inside the PubChem324kV2 test split |
-| `NOTES.md` | The two questions about the transfer run I could not close |
+| `distance_test.py` | Separates modality from recency by displacing the SMILES |
+| `NOTES.md` | The one question about the transfer run I could not close |
 | `run_eval.sh` | A single condition |
 | `run_queue.sh` | Several conditions back to back |
 | `supervise.sh` | Resumable supervisor that skips finished conditions and retries failures |

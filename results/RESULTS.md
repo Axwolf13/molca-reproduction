@@ -173,8 +173,11 @@ Output degenerates into repeated tokens:
 modality from position. Because the graph prompts sit nearest the generation
 point, "the graph dominates" stays confounded with "the nearest channel
 dominates".
-Because reordering alone destroys generation, it cannot separate them. The
-confound in §3 remains open.
+Because reordering alone destroys generation, it cannot separate them.
+
+The confound stayed open until §12 attacked it from the other side, holding the
+order fixed and varying the distance instead. Reordering was the wrong lever, not
+the wrong question.
 
 ## 7. Relation to the paper's own ablation
 
@@ -418,7 +421,7 @@ overlap nor the split question touches it.
 
 ---
 
-## 12. Distance, and two experiments that did not deliver
+## 12. Distance: the recency confound, measured
 
 §6 tried to separate modality from position by reordering the prompt, and
 reordering alone collapsed generation. Jobs `186488` and `186523` tried the other
@@ -465,11 +468,36 @@ pushing the SMILES 37 tokens away. That is a working instrument, and it was
 never used, because the four conditions that would have used it were cancelled
 when the gate appeared to fail.
 
-The confound in §3 therefore remains open. What changed is the cost of closing
-it: `chebi_filler_mid6_shufsmiles` and `chebi_filler_mid6_shufgraph` scored
-against `186523`'s 53.60 would give the SMILES and graph costs at increased
-distance, against the known +14.91 and +36.70 at normal distance. Two jobs, both
-already written, in [`../cluster/queued/`](../cluster/queued/).
+### Using it: the confound is real, and it is small
+
+Jobs `186610` and `186611` corrupt each channel at the increased distance, scored
+against `186523`. Because the filler lowers the clean baseline from 62.32 to
+53.60, the costs are reported as a share of each condition's own baseline rather
+than in absolute points. All four conditions ran on the same 3300 molecules in
+the same order, so [`../distance_test.py`](../distance_test.py) bootstraps the
+contrasts paired.
+
+| SMILES position | Clean | Cost of corrupting the SMILES | Cost of corrupting the graph |
+|---|---:|---:|---:|
+| Adjacent, as shipped | 62.32 | 23.9% | 58.9% |
+| Pushed 37 tokens away | 53.60 | **21.3%** | **58.3%** |
+| Change | | −2.6 pp [−3.9, −1.9] | −0.5 pp [−1.1, −0.1] |
+
+Both intervals exclude zero, so recency is real rather than absent. Moving the
+SMILES 37 tokens from the generation point does reduce what corrupting it costs.
+
+It is nowhere near large enough to be the mechanism. The reduction is 2.6 points
+of a 23.9% effect, roughly a tenth of the smaller channel, while the graph's own
+cost barely moves. The ratio between the two channels goes from **2.46× to
+2.74×**: displacing the SMILES that far widened the gap slightly, in the
+direction recency predicts, and left the graph just as dominant. A recency
+account would have to produce a 2.5× dominance out of an effect worth a tenth of
+the weaker channel.
+
+**§3's confound is therefore closed rather than merely acknowledged.** It exists,
+it is now measured, and it does not carry the result. That is a stronger position
+than the reordering test in §6 could ever have reached, since that test destroyed
+the model instead of moving one variable.
 
 ### The contamination control returned nothing
 
@@ -488,6 +516,39 @@ pretrain stages **after** fine-tuning and no un-fine-tuned score is reported.
 
 ---
 
+## 13. The paper's own contamination filter holds exactly
+
+§11 found half the PubChem324kV2 test split sitting in ChEBI-20's training data,
+which raises an obvious question about the direction that matters more. Every
+headline number in this document comes from `chebi.ckpt` evaluated on ChEBI-20's
+test split, and that checkpoint was pretrained on PubChem324k's pretrain subset.
+Section 4.1 says that subset was filtered to exclude ChEBI-20's valid and test
+molecules. If it leaked, the 62.32 in §1 is partly recall rather than captioning.
+
+Job `186609` checked, on the released V2 artefact, matching canonical SMILES:
+
+| PubChem324kV2 split | ChEBI-20 split | Shared structures | |
+|---|---|---:|---|
+| pretrain (298,010 distinct) | validation | **0** | filter holds |
+| pretrain | test | **0** | filter holds |
+| pretrain | train | 16,777 | never claimed to be filtered |
+| train (12,000) | test | 778 | never claimed to be filtered |
+| test (2,000) | train | 985 | §11's contamination |
+
+**Zero out of 6601.** Not a small number, an exact one, across 298,010 pretrain
+structures. The filter the paper describes is present in the released dataset and
+works, so the reproduction in §1 rests on clean data and the study's own
+foundation is sound.
+
+Two things follow. The contamination in §11 is genuinely a gap in the filter's
+*scope* rather than a failure of its implementation: the authors filtered exactly
+what they said they filtered, and the direction they did not cover is the one
+nobody had reason to run. And the 985 in the last row is reached here through a
+different code path from §11's, loading `test.pt` directly rather than the dumped
+identifiers, which makes it an independent confirmation of the 49.25% figure.
+
+---
+
 ## Limitations
 
 **1. `shuffle_smiles` is not an independent control.** Rotating the graph −1 and
@@ -496,9 +557,14 @@ Verified: `shuffle_smiles[i] == shuffle_graph_rev[rot(i)]` for **983/1000**
 predictions. It is a consistency check across two code paths, not additional
 evidence. The eight conditions are seven distinct manipulations.
 
-**2. Position is confounded with modality, and remains so.** See §6: the test
-designed to resolve this failed as an instrument. Untested alternatives: retrain
-with the prompts reordered, or interpolate the position gradually.
+**2. Position is confounded with modality, and the confound is small.** Closed
+rather than open, though not for free. Reordering the prompt (§6) destroyed the
+model and settled nothing. Displacing the SMILES 37 tokens instead (§12) reduces
+its contribution by 2.6 points of a 23.9% effect while leaving the graph's
+unchanged, taking the ratio between the channels from 2.46× to 2.74×. Recency
+exists and cannot account for the dominance. The residual caveat is that one
+displacement at one distance is a two-point curve; `chebi_filler_mid2` would add
+a third.
 
 **3. The no-SMILES conditions are distribution shift, not information removal.**
 `graph_only` (2.42) and `shuffle_graph_only` (2.23) degenerate into
@@ -547,7 +613,9 @@ Face, and the release documents no changelog, so the 28.45 against 38.7
 comparison is approximate in a way no local work can fix.
 [`../NOTES.md`](../NOTES.md) sets out what I could and could not establish.
 
-**9. The position confound is still open, and one experiment fell short.** §12
-records the attempt. The instrument that would work was built and never used,
-because the job designated as its gate was itself confounded. Two queued jobs
-would close it.
+**9. Two of the eight cluster experiments returned nothing usable.** §12 records
+both. The `stage2.ckpt` control was void, since the pre-fine-tune model does not
+caption at all. The first distance gate was confounded, because appending filler
+displaces the soft prompts rather than leaving the geometry alone. Both are kept
+in the repository rather than dropped, since a study that reports only the
+experiments that worked is not reporting its method.

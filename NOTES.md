@@ -1,11 +1,13 @@
 # Open Questions
 
 Everything else in this repository is settled: a number was measured, checked against
-the paper, and written down. This file is the opposite. It holds the two questions I
-could not close, kept here so that the next person to open the repository does not
-quietly assume they were answered.
+the paper, and written down. This file is the opposite. It holds what I could not
+close, kept here so that the next person to open the repository does not quietly
+assume it was answered.
 
-Both concern one number.
+It began as two questions about one number. The second closed with job `186489`, and
+closing it moved the number a long way. The first is still open and will stay open,
+because the evidence needed to settle it no longer exists in public.
 
 ## The number in question
 
@@ -14,8 +16,8 @@ test split**, a pairing the authors never ran. It scores **49.04 BLEU-2**. Table
 the paper reports **38.7** for MolCA Galac1.3B on PubChem324k.
 
 The tempting reading is that a model trained on one dataset transfers to another and
-beats the model trained in-domain. That reading needs two things to hold, and only one
-of them is now established.
+beats the model trained in-domain. That reading needs two things to hold. One is now
+settled and kills the reading outright; the other cannot be settled at all.
 
 | | Question | Status |
 |---|---|---|
@@ -220,3 +222,15 @@ an independent control would have been.
 6. If question 1 closes favourably, the 28.45 against 38.7 comparison becomes worth
    writing up properly. If it does not, the transfer run still carries the channel
    conflict replication, which never depended on the comparison.
+
+## One thing this file no longer needs to warn about
+
+An earlier draft flagged a worry that ran the other way: if PubChem324k's *pretrain*
+subset contained ChEBI-20 test molecules, the whole study's headline 62.32 would be
+partly recall. Job `186609` checked it against the released V2 artefact and found
+**zero of 6601 ChEBI-20 valid/test structures among the 298,010 pretrain structures**.
+
+Section 4.1's filter is present in the shipped dataset and it is exact. So the
+contamination in question 2 is a gap in that filter's *scope* rather than in its
+implementation, and the reproduction this repository is built on rests on clean data.
+`results/RESULTS.md` section 13 has the full table.

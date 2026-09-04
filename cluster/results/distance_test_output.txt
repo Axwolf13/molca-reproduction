@@ -1,0 +1,26 @@
+
+BLEU-2, and what corrupting each channel costs, at two distances
+
+                                        clean   SMILES    graph
+  SMILES adjacent (as shipped)          62.32    23.9%    58.9%
+  SMILES pushed 37 tokens away          53.60    21.3%    58.3%
+
+Change in relative cost when the SMILES moves away, 95% paired bootstrap
+
+  smiles     -2.6 pp   [ -3.9,  -1.9]  excludes 0
+  graph      -0.5 pp   [ -1.1,  -0.1]  excludes 0
+
+  graph cost over SMILES cost: 2.46x adjacent, 2.74x at 37 tokens
+
+Reading. Moving the SMILES 37 tokens from the generation point reduces what
+corrupting it costs, by 2.6 points of a 23.9 percent effect, and the interval
+excludes zero. Recency is real and measurable rather than absent.
+
+It is also far too small to be the mechanism. Were the graph winning because it
+sits nearest, displacing its rival that far should have shifted the balance
+substantially. The graph's own cost barely moves, and the ratio between the two
+channels goes from 2.46x to 2.74x. A recency account would have to explain a
+2.5x dominance out of an effect worth a tenth of the smaller channel.
+
+The confound section 3 flagged is real, now quantified, and does not carry the
+result.

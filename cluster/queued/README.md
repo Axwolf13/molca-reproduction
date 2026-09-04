@@ -5,106 +5,64 @@ this directory has. It is kept separate so the evidentiary record stays clean:
 a reader can tell at a glance which scripts produced results and which are
 proposals.
 
-Four jobs remain here, and between them they would close the last open question
-this study can close on its own hardware.
+**The experimental programme is finished.** What remains here is one optional
+refinement, not a gap. Every question this study can answer with the released
+artefacts has been answered, and everything still open needs either checkpoints
+the authors never published or a training run outside the scope of a
+reproduction.
 
-## What already ran, and what it changed
+## What went through, and what it settled
 
-Two items that used to sit in this directory have since gone through the cluster.
-Both are worth reading before submitting anything else.
-
-- **`dump_smiles.py`** (job `186489`) worked exactly as intended and moved a
-  headline number. Structural matching found 49.25% contamination in the
-  PubChem324kV2 test split against caption matching's 23.35%, which took the clean
-  transfer score from 38.86 to 28.45 and reversed section 11's conclusion. The
-  script now lives in `../scripts/`.
-- **`chebi_filler_end6`** (job `186488`) was the designated gate and it was
-  confounded. Appending filler after the whole prompt does not leave the geometry
-  untouched, because it displaces the soft prompts from the generation point. It
-  scored 37.26 with 54 empty outputs, and the four jobs below were cancelled on
-  the strength of that.
-
-That cancellation was the wrong call, though a reasonable one at the time.
-
-## The gate that matters passed
-
-`chebi_filler_mid6` (job `186523`) puts the filler **between** the SMILES span and
-the soft prompts, so the template ending the checkpoint was fine-tuned on stays
-intact. It scored **53.60 BLEU-2 with zero empty outputs**, retaining 86% of
-baseline while pushing the SMILES 37 Galactica tokens further from generation.
-
-That is a working instrument, and it is the reference the remaining jobs score
-against.
-
-## Run this one first
-
-`verify_pretrain_filter.py` checks the paper's own hygiene claim, and it is the
-highest-value job left. No GPU, a few minutes.
-
-Section 4.1 says the PubChem324k pretrain subset was filtered to exclude
-molecules from ChEBI-20's valid/test splits. Every headline number in this study
-depends on that holding, because `chebi.ckpt` was pretrained on that subset and
-is then evaluated on ChEBI-20's test split. Section 11 found 49.25% contamination
-running the comparison the other way, so the filter is no longer something to
-take on trust.
-
-```bash
-cd /home/mllp26_team007/MolCA
-source /home/mllp26_team007/molca_env/bin/activate
-cp <this directory>/verify_pretrain_filter.py .
-python verify_pretrain_filter.py > results_pretrain_filter.txt 2>&1
-```
-
-A zero in the pretrain-against-valid/test row confirms the filter and closes the
-question. A non-zero one means section 1's 62.32 is evaluated partly on molecules
-the checkpoint saw in pretraining, which would be the most consequential finding
-in the study and would need saying before anyone else notices.
-
-## The four jobs
-
-| Job | Measures | Reference |
+| Job | Question | Answer |
 |---|---|---|
-| `chebi_filler_mid6_shufsmiles` | SMILES cost at +37 tokens | 53.60, against +14.91 at normal distance |
-| `chebi_filler_mid6_shufgraph` | Graph cost, the graph having not moved | 53.60, against +36.70 at normal distance |
-| `chebi_filler_mid2` | Baseline at +13 tokens | 62.32 at zero |
-| `chebi_filler_mid2_shufsmiles` | SMILES cost at +13 tokens | the row above |
+| `186489` | How much of PubChem324kV2's test split did the ChEBI-20 checkpoint already see? | 49.25% by structure, against 23.35% by caption. Reversed section 11's conclusion |
+| `186609` | Does the paper's own pretrain filter hold? | Zero of 6601, exactly. Section 13 |
+| `186523`, `186610`, `186611` | Is the graph winning, or is the nearest channel winning? | The graph. Recency is real and worth a tenth of the weaker channel. Section 12 |
+| `186483` | Can `stage2.ckpt` serve as a contamination-free control? | No. 0.18 BLEU-2, 1605 of 2000 outputs empty |
+| `186488` | Does inserting filler cost anything by itself? | Confounded question, see below |
 
-The first two are the measurement. The `mid2` pair turns a single contrast into a
-dose-response curve, which is the difference between "the number moved" and "the
-number moves with distance", so run all four if the slots exist and the first two
-if they do not.
+## The one thing left
 
-Reading the result:
+`chebi_filler_mid2` and `chebi_filler_mid2_shufsmiles` repeat the distance
+measurement at 13 Galactica tokens rather than 37.
 
-- **SMILES cost falls as distance grows.** Position is doing real work and
-  section 3's central finding needs qualifying.
-- **SMILES cost holds near +14.91 at both distances.** Distance is not the
-  mechanism, and the modality reading survives a test built to break it.
-- **Graph cost drifts off +36.70.** The graph never moved, so a change there means
-  the filler is doing something other than adding distance. Treat the whole
-  experiment as void.
-
-## Running them
+Section 12 rests on two points: the SMILES costs 23.9% of baseline when adjacent
+and 21.3% when displaced. Two points establish that recency exists and is small.
+A third would establish whether the relationship is smooth, which is the
+difference between "the number moved" and "the number moves with distance". It
+would strengthen a claim already made rather than test a new one.
 
 ```bash
 cd /home/mllp26_team007/MolCA
-python <this directory>/apply_filler_patch.py     # idempotent, --revert undoes it
-cp <this directory>/*.sub <this directory>/run_chebi_filler_*.sh <job dir>/
-condor_submit chebi_filler_mid6_shufsmiles.sub
+python <this directory>/apply_filler_patch.py     # already applied there
+cp <this directory>/*.sub <this directory>/run_chebi_filler_mid2*.sh <job dir>/
+condor_submit chebi_filler_mid2.sub
 ```
 
-The patch is line-anchored rather than block-anchored, because the two machines
-patched `smiles_handler` differently. It refuses to run rather than guessing if
-the file has drifted further, and it saves a `.prefiller` backup. It is already
-applied on the cluster, where `../patches_cluster.diff` records the result.
+Expect the SMILES cost to land between 21.3% and 23.9% if distance acts smoothly,
+and outside that range if the 37-token result was a threshold effect rather than
+a gradient.
+
+## Why `186488` is filed as a failure rather than a result
+
+It was designed as the gate for the whole distance experiment, on the reasoning
+that filler appended after the entire prompt moves both channels equally and so
+leaves the relative geometry untouched. That reasoning was wrong. Appending
+filler necessarily displaces the soft prompts from the generation point, which
+makes it a manipulation rather than a control, and the checkpoint is brittle
+about exactly that: 37.26 BLEU-2 with 54 empty outputs.
+
+The useful gate was `186523`, which preserves the template ending, keeps every
+output non-empty, and retains 86% of baseline. Reading `186488` as a failed gate
+rather than as a null result is what allowed the experiment to continue.
 
 ## What is deliberately not here
 
 Fine-tuning `stage2.ckpt` on PubChem324k's train subset would reproduce Table 2a's
 38.7 directly and remove the need for the transfer comparison entirely. It is 100
 epochs, costed at 6 GPU-hours on the authors' hardware and considerably more on a
-P100. That is a training run rather than an evaluation, which puts it outside what
-this study set out to do.
+P100. That is a training run rather than an evaluation.
 
-Job `186483` tested whether the released `stage2.ckpt` could stand in without that
-fine-tune. It could not: 0.18 BLEU-2, 1605 of 2000 outputs empty.
+MoleculeNet property prediction and IUPAC name prediction are absent for the same
+reason: the release ships no classifier head and no IUPAC-tuned checkpoint.
+`../../ENVIRONMENT.md` enumerates all seven released files.

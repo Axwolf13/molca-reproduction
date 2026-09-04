@@ -50,17 +50,19 @@ release. None of them is redistributed here.
 
 | Path | Contents |
 |---|---|
-| `results/results.txt` | Pipeline BLEU-2, BLEU-4, METEOR and wall time for 23 jobs |
+| `results/results.txt` | Pipeline BLEU-2, BLEU-4, METEOR and wall time for 26 jobs |
 | `results/results_retrieval.txt` | Stage-1 retrieval, raw Lightning output |
 | `results/verify_retrieval_output.txt` | Output of `verify_retrieval.py`, all 32 metrics |
 | `results/transfer_overlap_output.txt` | Output of `../transfer_overlap.py`, the contamination split |
 | `results/results_overlap_smiles.txt` | The same, as produced on the cluster, unedited |
+| `results/results_pretrain_filter.txt` | Verification that the paper's own contamination filter holds |
+| `results/distance_test_output.txt` | Output of `../distance_test.py`, modality against recency |
 | `results/pubchem_test_smiles.jsonl` | Canonical SMILES for the 2000 PubChem324kV2 test rows |
 | `results/chebi_smiles.jsonl` | Canonical SMILES for all 33,008 ChEBI-20 rows |
 | `verify_retrieval.py` | Diffs both retrieval logs against the paper's Tables 7b and 7c |
 | `results/results_multimetric.txt` | Channel conflict across BLEU-2, BLEU-4, ROUGE-L, METEOR |
 | `results/results_class_fuzzy.txt` | Chemical-class agreement under three matching rules |
-| `predictions/` | 23 prediction files, one per job, as JSONL |
+| `predictions/` | 25 prediction files, one per job, as JSONL |
 | `runlogs/` | Condor `.out` and `.err` for every job, including the failures |
 | `scripts/` | The `.sub` submit files, their `.sh` payloads, and three analysis scripts |
 | `patches_cluster.diff` | The source patches applied on the cluster |
@@ -153,7 +155,36 @@ spent 100 epochs on. Scoring the halves apart puts the contaminated rows at 63.7
 and the rest at 28.45, so the clean transfer number is 10.25 BLEU-2 *below* the
 paper rather than above it.
 
-## Three Jobs That Did Not Deliver
+## The Distance Experiment
+
+Six jobs separate "the graph wins" from "the channel nearest generation wins",
+which the shipped prompt layout confounds.
+
+| Job | Condition | BLEU-2 |
+|---|---|---:|
+| `186523` | filler between SMILES and soft prompts, clean inputs | 53.60 |
+| `186610` | the same, SMILES rotated | 42.17 |
+| `186611` | the same, graph rotated | 22.33 |
+
+Against the unmodified baselines of 62.32 / 47.41 / 25.62, corrupting the SMILES
+costs 23.9% of baseline when it sits adjacent and 21.3% when it is 37 tokens
+further away, while the graph stays at 58.9% and 58.3%. Recency is measurable and
+too small to explain a 2.5x dominance. `../results/RESULTS.md` section 12 has the
+intervals.
+
+## The Paper's Filter, Verified
+
+Job `186609` needed no GPU and produced the cleanest result of the whole set.
+Matching canonical structures, **zero** of ChEBI-20's 6601 valid and test
+molecules appear among the 298,010 distinct structures in PubChem324kV2's
+pretrain subset. Section 4.1 claims exactly that exclusion, and the released
+dataset delivers it.
+
+Since every number in `../results/` comes from a checkpoint pretrained on that
+subset and evaluated on ChEBI-20's test split, this is the check that keeps the
+reproduction honest. Raw output is in `results/results_pretrain_filter.txt`.
+
+## Two Jobs That Did Not Deliver
 
 Kept here because a null result that cost GPU-hours is still part of the record.
 
@@ -161,10 +192,9 @@ Kept here because a null result that cost GPU-hours is still part of the record.
 |---|---|---|
 | `186483` | `stage2.ckpt` as a contamination-free control | **Void.** 0.18 BLEU-2, 1605 of 2000 outputs empty. The pre-fine-tune model does not caption |
 | `186488` | Gate for the distance experiment, filler after the whole prompt | **Confounded.** 37.26 BLEU-2, 54 empty. Appending filler displaces the soft prompts from the generation point, so it is a manipulation rather than a control |
-| `186523` | Filler between the SMILES and the soft prompts | **Worked, and went unused.** 53.60 BLEU-2, 0 empty. This was the usable instrument; the four conditions that needed it were cancelled when `186488` appeared to fail |
 
-`../results/RESULTS.md` section 12 works through what the 8.72 and 16.34 drops
-can and cannot support.
+Both are kept rather than dropped. A study that reports only the experiments
+that worked is not reporting its method.
 
 ## Two Findings the Logs Preserve
 

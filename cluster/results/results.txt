@@ -11,11 +11,13 @@ chebi_beam1              183291        61.53      53.10    64.49          ?
 chebi_filler_mid6        186523        53.60      46.11    58.80    1:31:01
 pc_transfer              185367        49.04      45.66    57.60    1:05:37
 chebi_shufsmiles         183311        47.41      37.28    50.17    1:51:13
+chebi_filler_mid6_shufsmiles 186610        42.17      33.23    46.15    1:30:59
 chebi_filler_end6        186488        37.26      31.60    45.75    1:28:50
 chebi_nullgraph          183312        27.40      15.90    31.17    1:51:55
 chebi_shufgraphrev       183313        25.72      14.88    29.35    1:50:06
 chebi_shufgraph          183290        25.62      14.76    29.33    1:50:20
 chebi_rewire025          183372        23.41      13.32    27.68    1:45:10
+chebi_filler_mid6_shufgraph 186611        22.33      12.73    26.23    1:31:08
 chebi_null_shufsmiles    183371        21.01      10.70    25.02    1:48:15
 chebi_rewire050          183373        20.19      11.16    25.21    1:40:17
 chebi_rewire             183305        20.18      11.11    25.15    1:42:01
