@@ -123,14 +123,15 @@ a second caption distribution to survive.
 | Subset of the 2000 test molecules | Normal | Neighbour's graph | Drop |
 |---|---:|---:|---:|
 | Whole split | 49.04 | 18.63 | 30.41 |
-| Never seen during ChEBI-20 training | 38.86 | 16.03 | 22.83 |
+| Never seen during ChEBI-20 training | 28.45 | 15.61 | 12.84 |
 
-The split matters because 23.35% of that test set carries a caption the
-checkpoint was fine-tuned on verbatim, scoring 94.33 BLEU-2 on recall alone.
-Reading the raw 49.04 as transfer beating the paper's in-domain 38.7 would be
-wrong twice over, so **[NOTES.md](NOTES.md)** works through what the number can
-and cannot support. The conflict result needs neither reading: it holds at 22.83
-BLEU-2 on molecules the model provably never trained on.
+The split matters because **49.25% of that test set is structurally present in
+ChEBI-20's training data**, scoring 63.75 BLEU-2 on partial recall. The raw 49.04
+reads as transfer beating the paper's in-domain 38.7; the uncontaminated half
+scores 28.45, which is 10.25 *below* it. **[NOTES.md](NOTES.md)** works through
+what the comparison can and cannot support. The conflict result needs neither
+reading: substituting the graph still halves the score on molecules the model
+provably never trained on.
 
 Full numbers, controls, and limitations live in
 **[results/RESULTS.md](results/RESULTS.md)**.

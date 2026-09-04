@@ -43,10 +43,18 @@ index 6e97f8f..a2b3404 100644
                                                                    batch_size=self.match_batch_size,
                                                                    shuffle=False,
 diff --git a/data_provider/stage2_chebi_dm.py b/data_provider/stage2_chebi_dm.py
-index d875475..4db89c2 100644
+index d875475..2e0d528 100644
 --- a/data_provider/stage2_chebi_dm.py
 +++ b/data_provider/stage2_chebi_dm.py
-@@ -45,6 +45,17 @@ def smiles_handler(text, mol_ph, is_gal=True):
+@@ -41,13 +41,33 @@ def _insert_split_marker(m: re.Match):
+ 
+ 
+ def smiles_handler(text, mol_ph, is_gal=True):
++    import os
++    _u = os.environ.get('MOLCA_FILLER_TEXT', 'It is a chemical entity. ')
++    _fm = int(os.environ.get('MOLCA_FILLER_MID', '0'))
++    _fe = int(os.environ.get('MOLCA_FILLER_END', '0'))
+     smiles_list = []
      for match in CUSTOM_SEQ_RE.finditer(text):
          smiles = match.group(3)
          smiles_list.append(smiles)
@@ -62,9 +70,18 @@ index d875475..4db89c2 100644
 +            text = CUSTOM_SEQ_RE.sub(r'%s\3' % (mol_ph), text)
 +            return text, smiles_list
      if is_gal:
-         text = CUSTOM_SEQ_RE.sub(r'\1\3\4%s' % (mol_ph), text)
+-        text = CUSTOM_SEQ_RE.sub(r'\1\3\4%s' % (mol_ph), text)
++        if _fm:
++            text = CUSTOM_SEQ_RE.sub(r'\1\3\4' + _u * _fm + mol_ph, text)
++        else:
++            text = CUSTOM_SEQ_RE.sub(r'\1\3\4%s' % (mol_ph), text)
          text = escape_custom_split_sequence(text)
-@@ -126,6 +137,44 @@ class InferenceCollater:
++        if _fe:
++            text = text + _u * _fe
+         return text, smiles_list
+     else:
+         text = CUSTOM_SEQ_RE.sub(r'\3%s' % (mol_ph), text)
+@@ -126,6 +146,44 @@ class InferenceCollater:
          
      def __call__(self, batch):
          graphs, texts, smiles_prompt = zip(*batch)

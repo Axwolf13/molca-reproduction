@@ -50,14 +50,17 @@ release. None of them is redistributed here.
 
 | Path | Contents |
 |---|---|
-| `results/results.txt` | Pipeline BLEU-2, BLEU-4, METEOR and wall time for 20 jobs |
+| `results/results.txt` | Pipeline BLEU-2, BLEU-4, METEOR and wall time for 23 jobs |
 | `results/results_retrieval.txt` | Stage-1 retrieval, raw Lightning output |
 | `results/verify_retrieval_output.txt` | Output of `verify_retrieval.py`, all 32 metrics |
 | `results/transfer_overlap_output.txt` | Output of `../transfer_overlap.py`, the contamination split |
+| `results/results_overlap_smiles.txt` | The same, as produced on the cluster, unedited |
+| `results/pubchem_test_smiles.jsonl` | Canonical SMILES for the 2000 PubChem324kV2 test rows |
+| `results/chebi_smiles.jsonl` | Canonical SMILES for all 33,008 ChEBI-20 rows |
 | `verify_retrieval.py` | Diffs both retrieval logs against the paper's Tables 7b and 7c |
 | `results/results_multimetric.txt` | Channel conflict across BLEU-2, BLEU-4, ROUGE-L, METEOR |
 | `results/results_class_fuzzy.txt` | Chemical-class agreement under three matching rules |
-| `predictions/` | 20 prediction files, one per job, as JSONL |
+| `predictions/` | 23 prediction files, one per job, as JSONL |
 | `runlogs/` | Condor `.out` and `.err` for every job, including the failures |
 | `scripts/` | The `.sub` submit files, their `.sh` payloads, and three analysis scripts |
 | `patches_cluster.diff` | The source patches applied on the cluster |
@@ -144,10 +147,24 @@ weights are the ChEBI-20 ones while the split is PubChem's. The 2000 rows match
 Table 1 of the paper exactly.
 
 Do not read 49.04 against the paper's 38.7 without reading
-[`../NOTES.md`](../NOTES.md) first. Roughly a quarter of the PubChem324kV2 test
-split carries a caption that appears verbatim in ChEBI-20's training set, which
-is what the checkpoint spent 100 epochs memorising. Scoring the halves apart
-puts the memorised rows at 94.33 and the rest at 38.86.
+[`../NOTES.md`](../NOTES.md) first. **49.25%** of the PubChem324kV2 test split is
+structurally present in ChEBI-20's training set, which is what the checkpoint
+spent 100 epochs on. Scoring the halves apart puts the contaminated rows at 63.75
+and the rest at 28.45, so the clean transfer number is 10.25 BLEU-2 *below* the
+paper rather than above it.
+
+## Three Jobs That Did Not Deliver
+
+Kept here because a null result that cost GPU-hours is still part of the record.
+
+| Job | Intent | Outcome |
+|---|---|---|
+| `186483` | `stage2.ckpt` as a contamination-free control | **Void.** 0.18 BLEU-2, 1605 of 2000 outputs empty. The pre-fine-tune model does not caption |
+| `186488` | Gate for the distance experiment, filler after the whole prompt | **Confounded.** 37.26 BLEU-2, 54 empty. Appending filler displaces the soft prompts from the generation point, so it is a manipulation rather than a control |
+| `186523` | Filler between the SMILES and the soft prompts | **Worked, and went unused.** 53.60 BLEU-2, 0 empty. This was the usable instrument; the four conditions that needed it were cancelled when `186488` appeared to fail |
+
+`../results/RESULTS.md` section 12 works through what the 8.72 and 16.34 drops
+can and cannot support.
 
 ## Two Findings the Logs Preserve
 

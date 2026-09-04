@@ -329,49 +329,70 @@ scores **49.04 BLEU-2** where the paper's Table 2a reports **38.7** for a model
 fine-tuned on PubChem324k itself. Transfer appearing to beat in-domain training
 is exactly the kind of result that deserves suspicion.
 
-### A quarter of the test set is memorised
+### Half the test set is contaminated
 
-Matching on caption text, [`../transfer_overlap.py`](../transfer_overlap.py)
-finds that **467 of the 2000 test molecules (23.35%)** carry a caption appearing
-verbatim in ChEBI-20's training split. That is the split `chebi.ckpt` was
-fine-tuned on for 100 epochs.
+Job `186489` dumped rdkit-canonical SMILES for both datasets, letting
+[`../transfer_overlap.py`](../transfer_overlap.py) match on structure rather than
+on caption text. **985 of the 2000 test molecules (49.25%)** are structurally
+present in ChEBI-20's training split, the split `chebi.ckpt` was fine-tuned on
+for 100 epochs.
+
+An earlier pass matched captions instead and found 467. The two sets nest
+exactly: every caption match is also a structure match, and 518 molecules are the
+same compound described in different words across the two datasets. Caption
+matching was therefore conservative in precisely the way claimed, and it
+understated the problem by a factor of two.
 
 No filter the authors built could have caught this, and the reason is directional
 rather than an oversight. Section 4.1 excludes molecules from the **valid/test
 sets** of ChEBI-20, PCDes and MoMu, which protects their ChEBI-20 evaluation
-against leakage out of PubChem324k pretraining. Our run points the other way,
-and the overlap lands almost entirely on ChEBI-20's **train** split:
+against leakage out of PubChem324k pretraining. Our run points the other way, and
+the overlap lands on ChEBI-20's **train** split:
 
 | Overlap falls in | Count | Could the paper's filter have caught it? |
 |---|---:|---|
-| ChEBI-20 train only | 465 | No, the filter never targets train |
-| ChEBI-20 valid or test only | 102 | Only if applied to the downstream subset too |
-| Both | 2 | Partially |
+| ChEBI-20 train only | 985 | No. The filter never targets train |
+| ChEBI-20 valid or test only | 239 | Only if applied to the downstream subset too |
+| Both | 0 | ChEBI-20's own splits are structurally disjoint |
 
-So even a version of the filter extended to the high-quality 15k subset would
-have removed at most 104 of the 569 matches, leaving the 467-molecule train
-overlap that does the damage. This is contamination in a direction nobody had
-reason to guard against, because until now nobody had pointed a ChEBI-20
-checkpoint at PubChem324k.
+Even a version of the filter extended to the high-quality 15k subset would have
+removed 239 of the 1224 matches, leaving all 985 train overlaps intact. This is
+contamination in a direction nobody had reason to guard against, because until
+now nobody had pointed a ChEBI-20 checkpoint at PubChem324k.
 
 | Subset | Molecules | BLEU-2 | 95% CI |
 |---|---:|---:|---|
 | Whole test split | 2000 | 49.04 | |
-| Caption seen in ChEBI-20 train | 467 | **94.33** | [92.91, 95.68] |
-| Caption not seen | 1533 | **38.86** | [36.59, 41.41] |
-| Gap | | +55.47 | [+52.51, +58.32] |
+| Structure seen in ChEBI-20 train | 985 | **63.75** | [59.09, 68.77] |
+| Structure not seen | 1015 | **28.45** | [26.45, 30.46] |
+| Gap | | +35.31 | [+30.43, +40.66] |
 
-The split vindicates the suspicion twice over. Scoring 94.33 on the memorised
-quarter is retrieval from weights rather than captioning, and it is about as
-clean a demonstration of what contamination does to a benchmark as this study
-produced: one number, one dataset, a 55-point gap between molecules the model
-was trained to recite and molecules it was not.
+The suspicion was right and the correction is larger than the first pass
+suggested. Removing the contaminated half leaves **28.45**, which sits **10.25
+BLEU-2 below** the paper's 38.7 rather than level with it.
 
-Removing that quarter leaves **38.86**, sitting 0.16 BLEU-2 from the paper's
-38.7. The interesting result is not the discarded 49.04 but what replaces it.
-Transferring a ChEBI-20 checkpoint to PubChem324k performs on par with training
-on PubChem324k directly, on a caption distribution and a molecule set it never
-saw.
+Splitting the contaminated half by how it was matched gives a clean gradient, and
+it is the most direct evidence in this study of what memorisation buys:
+
+| What the checkpoint saw in training | Molecules | BLEU-2 |
+|---|---:|---:|
+| This structure **and** this caption | 467 | **94.33** |
+| This structure, worded differently | 518 | **45.63** |
+| Neither | 1015 | **28.45** |
+
+Seeing the exact caption is worth 66 BLEU-2 over seeing nothing. Seeing only the
+molecule, with the description rewritten, is worth 17. The middle row is the
+interesting one, because it is neither recall nor clean generalisation: the model
+has learned this compound's chemistry and is being asked to describe it in
+another dataset's idiom.
+
+An earlier draft of this section, working from caption matching, reported 38.86
+and concluded that transfer performed on par with in-domain training. That
+conclusion was an artefact of an undercounted overlap and does not survive
+structural matching. Transfer from ChEBI-20 to PubChem324k is **materially worse**
+than training on PubChem324k, which is the unsurprising result. What is worth
+keeping is how thoroughly contamination disguised it: the raw 49.04 read as a
+27% improvement over the paper, when the clean subset is a 27% shortfall.
 
 That comparison still carries an unresolved assumption, since PubChem324kV2 was
 released in January 2024, after both the preprint and the conference, and the v1 dataset the
@@ -383,15 +404,87 @@ I could and could not establish there.
 | Subset | Normal | Neighbour's graph | Drop |
 |---|---:|---:|---:|
 | Whole split | 49.04 | 18.63 | 30.41 |
-| Seen in ChEBI-20 train | 94.33 | 29.13 | 65.20 |
-| Not seen | 38.86 | 16.03 | 22.83 |
+| Seen in ChEBI-20 train | 63.75 | 20.72 | 43.04 |
+| Not seen | 28.45 | 15.61 | 12.84 |
 
-Substituting the neighbouring molecule's graph costs 22.83 BLEU-2 on the 1533
-molecules the checkpoint provably never trained on. Withholding the SMILES
-entirely (`185369`) collapses the run to 2.41e-154, reproducing on PubChem the
-same degenerate floor §3 found on ChEBI-20. Since the finding replicates across
-datasets, across caption styles, and on uncontaminated data, neither the overlap
-nor the split question touches it.
+Substituting the neighbouring molecule's graph costs 12.84 BLEU-2 on the 1015
+molecules the checkpoint provably never trained on, roughly halving the score.
+Withholding the SMILES entirely (`185369`) collapses the run to 2.41e-154,
+reproducing on PubChem the same degenerate floor §3 found on ChEBI-20. The drop
+is smaller here than the 22.83 the caption-matched split suggested, which follows
+from the cleaner subset starting 10 points lower. Since the finding replicates
+across datasets, across caption styles, and on uncontaminated data, neither the
+overlap nor the split question touches it.
+
+---
+
+## 12. Distance, and two experiments that did not deliver
+
+§6 tried to separate modality from position by reordering the prompt, and
+reordering alone collapsed generation. Jobs `186488` and `186523` tried the other
+lever, holding the order fixed and inserting neutral filler
+(`It is a chemical entity. `, 37 Galactica tokens at k=6) to change how far each
+channel sits from the generation point.
+
+| Job | Filler position | SMILES distance | Graph distance | BLEU-2 |
+|---|---|---|---|---:|
+| `183288` | none | near | nearest | 62.32 |
+| `186523` | between SMILES and soft prompts | **+37 tokens** | nearest | **53.60** |
+| `186488` | after the whole prompt | +37 tokens | **+37 tokens** | **37.26** |
+
+Read as a decomposition, moving the SMILES away costs **8.72** and moving the
+graph away as well costs a further **16.34**. Taken at face value that says the
+graph is roughly twice as sensitive to distance as the SMILES, which would fit
+§3's picture of the graph as the channel the model actually leans on.
+
+**Do not take it at face value.** The two rows differ in a second respect. In
+`186523` the tokens immediately preceding generation are the soft prompts and the
+period, exactly the pattern the checkpoint was fine-tuned on. In `186488` they are
+filler text. Given how brittle §6 showed this checkpoint to be about its template,
+the 16.34 confounds "the graph moved" with "the template ending changed", and
+generation quality confirms something broke:
+
+| Condition | Mean words | Empty outputs |
+|---|---:|---:|
+| Baseline | 42.4 | 0 |
+| `186523` filler between | 37.3 | 0 |
+| `186488` filler at end | 26.0 | 54 |
+
+So the 8.72 is a clean measurement and the 16.34 is not.
+
+### What the gate actually established
+
+`186488` was designed as the gate, on the reasoning that filler moving both
+channels equally leaves the relative geometry untouched. That reasoning was
+wrong: appending filler necessarily displaces the soft prompts from the
+generation point, so the "neutral" control was itself a manipulation.
+
+The useful gate turned out to be the other job. `186523` preserves the template
+ending, keeps every output non-empty, and retains 86% of baseline BLEU-2 while
+pushing the SMILES 37 tokens away. That is a working instrument, and it was
+never used, because the four conditions that would have used it were cancelled
+when the gate appeared to fail.
+
+The confound in §3 therefore remains open. What changed is the cost of closing
+it: `chebi_filler_mid6_shufsmiles` and `chebi_filler_mid6_shufgraph` scored
+against `186523`'s 53.60 would give the SMILES and graph costs at increased
+distance, against the known +14.91 and +36.70 at normal distance. Two jobs, both
+already written, in [`../cluster/queued/`](../cluster/queued/).
+
+### The contamination control returned nothing
+
+Job `186483` evaluated `stage2.ckpt`, the one PubChem-native checkpoint in the
+release, on the PubChem324kV2 test split. Since it has never seen ChEBI-20's
+train split, its score on the 985 contaminated molecules should have matched its
+score on the other 1015, turning §11's contamination diagnosis into a direct
+measurement.
+
+It scored **0.18 BLEU-2, with 1605 of 2000 outputs empty.** `stage2.ckpt` is the
+pre-fine-tune model, and without the fine-tune it does not produce captions at
+all. The control is void rather than negative: it measures nothing about
+contamination, only that stage-2 pretraining alone does not yield a captioner.
+That is consistent with the paper, where every row of Table 8 ablates the
+pretrain stages **after** fine-tuning and no un-fine-tuned score is reported.
 
 ---
 
@@ -440,11 +533,21 @@ eval needs ~11 GPU-hours at the paper's settings (two re-ranking passes per
 split, 13.4 s per iteration × 750 iterations × 2 splits) and did not complete.
 The cluster ran it to completion; see §8.
 
-**8. The transfer contamination is measured on captions, not structures.** The
-prediction dumps carry only `prediction` and `target`, so §11 matches molecules
-by normalised caption text. A molecule whose PubChem wording differs from its
-ChEBI-20 wording by one word counts as unseen, making 23.35% a floor rather than
-an estimate and the clean-half 38.86 slightly flattered. Matching canonical
-SMILES would close this, requiring a re-dump of identifiers from the cluster.
-Whether PubChem324kV2 preserves the split the paper's 38.7 was measured on is
-separately unresolved; [`../NOTES.md`](../NOTES.md) sets out both.
+**8. The transfer comparison rests on an unverified split.** Structural matching
+has closed the measurement half of this: §11 now matches rdkit-canonical SMILES,
+finds 49.25% contamination, and reports 28.45 on the clean subset. An earlier
+draft matched captions, found 23.35%, and concluded the opposite about transfer.
+The two overlap sets nest exactly, so the correction was one of coverage rather
+than of method, but it is a reminder of how far a conservative proxy can be from
+the quantity it stands in for.
+
+What remains open is whether PubChem324kV2 preserves the split the paper's 38.7
+was measured on. V2 postdates publication, the v1 dataset is gone from Hugging
+Face, and the release documents no changelog, so the 28.45 against 38.7
+comparison is approximate in a way no local work can fix.
+[`../NOTES.md`](../NOTES.md) sets out what I could and could not establish.
+
+**9. The position confound is still open, and one experiment fell short.** §12
+records the attempt. The instrument that would work was built and never used,
+because the job designated as its gate was itself confounded. Two queued jobs
+would close it.

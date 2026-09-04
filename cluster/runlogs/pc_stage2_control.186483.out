@@ -1,0 +1,89 @@
+==========
+== CUDA ==
+==========
+CUDA Version 12.1.1
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+=========================================
+accelerator = gpu
+accumulate_grad_batches = 1
+batch_size = 32
+bert_hidden_dim = 768
+bert_name = scibert
+caption_eval_epoch = 10
+check_val_every_n_epoch = 1
+ckpt_path = None
+cross_attention_freq = 2
+devices = [0]
+do_sample = False
+drop_ratio = 0.0
+filename = pc_stage2_control
+filtered_cid_path = None
+gin_hidden_dim = 300
+gin_num_layers = 5
+graph_only = False
+inference_batch_size = 8
+init_checkpoint = all_checkpoints/stage2.ckpt
+init_lr = 0.0001
+iupac_prediction = False
+llm_tune = freeze
+load_in_8bit = False
+lora_alpha = 32
+lora_dropout = 0.1
+lora_r = 8
+lr_decay_rate = 0.9
+max_epochs = 10
+max_len = 256
+min_len = 8
+min_lr = 1e-05
+mode = eval
+num_beams = 5
+num_query_token = 8
+num_workers = 2
+opt_model = facebook/galactica-1.3b
+optimizer = adamw
+peft_config = None
+peft_dir = 
+precision = 16-mixed
+prompt = [START_I_SMILES]{}[END_I_SMILES]. 
+reaction_weight = 1.0
+root = data/PubChem324kV2/PubChem324kV2/
+save_every_n_epochs = 10
+scheduler = linear_warmup_cosine_lr
+seed = 42
+stage1_path = 
+stage2_path = all_checkpoints/stage2.ckpt
+strategy_name = None
+text_max_len = 128
+tune_gnn = True
+use_smiles = False
+warmup_lr = 1e-06
+warmup_steps = 1000
+weight_decay = 0.05
+=========================================
+bert load scibert
+loaded init checkpoint from all_checkpoints/stage2.ckpt
+total params: 1413568964
+Validation DataLoader 0:   0%|          | 0/250 [00:00<?, ?it/s]        
+Validation DataLoader 1:   1%|          | 3/250 [00:42<58:14,  0.07it/s]  
+Validation DataLoader 1: 100%|██████████| 250/250 [59:58<00:00,  0.07it/s]BLEU-2 score: 0.18452416370577576
+BLEU-4 score: 0.13241167146204963
+Average Meteor score: 4.348598440366345
+ROUGE score:
+rouge1: 4.9486467876480615
+rouge2: 3.205170620508524
+rougeL: 4.586065856373871
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃     Validate metric     ┃      DataLoader 0       ┃       DataLoader 1       ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│          bleu2          │   0.18452416360378265   │   0.18452416360378265    │
+│          bleu4          │   0.1324116736650467    │    0.1324116736650467    │
+│      meteor_score       │    4.348598480224609    │    4.348598480224609     │
+│         rouge_1         │   4.9486470222473145    │    4.9486470222473145    │
+│         rouge_2         │   3.2051706314086914    │    3.2051706314086914    │
+│         rouge_l         │    4.586065769195557    │    4.586065769195557     │
+│    val molecule loss    │   1.6702754497528076    │                          │
+└─────────────────────────┴─────────────────────────┴──────────────────────────┘

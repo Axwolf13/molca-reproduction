@@ -20,10 +20,11 @@ of them is now established.
 | | Question | Status |
 |---|---|---|
 | 1 | Is PubChem324kV2 the split the paper's 38.7 was measured on? | **Open.** The evidence leans against assuming it |
-| 2 | How far do the ChEBI-20 training set and this test set overlap? | **Closed, and the answer is bad.** 23.35% verbatim overlap |
+| 2 | How far do the ChEBI-20 training set and this test set overlap? | **Closed, and the answer is bad.** 49.25% structural overlap |
 
-Question 2 turned out to be answerable from files already in the repository, so it is
-recorded below as a finding rather than a question. Question 1 remains genuinely open.
+Question 2 turned out to be answerable, first from files already in the repository and
+then properly, once job `186489` dumped canonical structures. It is recorded below as a
+finding rather than a question. Question 1 remains genuinely open.
 
 ## Question 1: is PubChem324kV2 the paper's split?
 
@@ -82,19 +83,24 @@ repository does not ship. Point `--chebi` at wherever `train.txt`,
 beside this directory at `../MolCA/data/ChEBI-20_data`. Saved output is in
 `cluster/results/transfer_overlap_output.txt`.
 
-Matching on caption text, which is the only molecule identifier the prediction dumps
-carry:
+Job `186489` dumped rdkit-canonical SMILES for both datasets, so the match is on
+structure rather than on wording:
 
-| PubChem324kV2 test caption also appears in | Count | Share of 2000 |
+| PubChem324kV2 test molecule also appears in | Count | Share of 2000 |
 |---|---:|---:|
-| ChEBI-20 **train** | 467 | **23.35%** |
-| ChEBI-20 validation | 54 | 2.70% |
-| ChEBI-20 test | 51 | 2.55% |
-| any ChEBI-20 split | 569 | 28.45% |
+| ChEBI-20 **train** | 985 | **49.25%** |
+| ChEBI-20 validation | 120 | 6.00% |
+| ChEBI-20 test | 119 | 5.95% |
+| any ChEBI-20 split | 1224 | 61.20% |
 
 The train row is the one that matters, because `chebi.ckpt` was fine-tuned on that
-split for 100 epochs. Nearly a quarter of the "transfer" test set is material the
-checkpoint was trained to reproduce verbatim.
+split for 100 epochs. **Half** the "transfer" test set is material the checkpoint
+was trained on.
+
+An earlier pass matched caption text and found 467 rather than 985. The two sets
+nest exactly, with 518 molecules being the same compound worded differently across
+the datasets, so caption matching was conservative exactly as claimed and
+understated the contamination by a factor of two.
 
 ### No filter the authors built could have caught this
 
@@ -110,12 +116,12 @@ live there:
 
 | Overlap falls in | Count | Reachable by the paper's filter? |
 |---|---:|---|
-| ChEBI-20 train only | 465 | No. The filter never targets train |
-| ChEBI-20 valid or test only | 102 | Only if extended to the downstream subset |
-| Both | 2 | Partially |
+| ChEBI-20 train only | 985 | No. The filter never targets train |
+| ChEBI-20 valid or test only | 239 | Only if extended to the downstream subset |
+| Both | 0 | ChEBI-20's own splits are structurally disjoint |
 
-Extending the filter to cover the 15k subset would still have removed at most 104 of
-the 569 matches, leaving the 467-molecule train overlap intact. The filter exists to
+Extending the filter to cover the 15k subset would still have removed only 239 of
+the 1224 matches, leaving all 985 train overlaps intact. The filter exists to
 protect the authors' **ChEBI-20 evaluation** from leakage out of PubChem324k
 pretraining. Our run is the reverse direction, ChEBI-20 training leaking into a
 PubChem324k evaluation, which nobody had reason to guard against because nobody had
@@ -126,26 +132,29 @@ pointed a ChEBI-20 checkpoint at PubChem324k.
 | Subset | Molecules | BLEU-2 | 95% CI |
 |---|---:|---:|---|
 | Whole test split | 2000 | 49.04 | |
-| Caption seen in ChEBI-20 train | 467 | **94.33** | [92.91, 95.68] |
-| Caption not seen | 1533 | **38.86** | [36.59, 41.41] |
-| Gap | | +55.47 | [+52.51, +58.32] |
+| Structure seen in ChEBI-20 train | 985 | **63.75** | [59.09, 68.77] |
+| Structure not seen | 1015 | **28.45** | [26.45, 30.46] |
+| Gap | | +35.31 | [+30.43, +40.66] |
 
-A 94.33 on the memorised quarter is recall, not captioning. Strip it out and the honest
-transfer number is **38.86**, which lands **0.16 BLEU-2 from the paper's 38.7**.
+Strip the contaminated half and the honest transfer number is **28.45**, which sits
+**10.25 BLEU-2 below** the paper's 38.7.
 
-That is a far more interesting result than the headline. It says transfer from ChEBI-20
-roughly matches in-domain PubChem324k training rather than beating it, though question 1
-still stands between that sentence and a clean claim.
+This reverses what the caption-matched pass concluded. On 467 overlaps the clean
+subset scored 38.86 and transfer looked level with in-domain training; on the true
+985 it scores 28.45 and transfer is clearly worse, which is the unsurprising
+outcome. What is worth keeping is the size of the disguise. The raw 49.04 reads as
+27% above the paper, while the uncontaminated subset is 27% below it.
 
-### Where this measurement is weak
+### Where this measurement is still weak
 
-Caption matching is conservative in one direction only. Normalisation collapses
-whitespace and folds case, nothing more, so a molecule whose PubChem text differs from
-its ChEBI-20 text by a single word is counted as unseen. Real contamination is therefore
-**at least** 23.35% and the clean-half 38.86 is, if anything, slightly flattered.
-Matching on canonical SMILES would be tighter. The prediction dumps carry only
-`prediction` and `target`, so doing it properly means re-dumping identifiers from the
-cluster, which is roughly ten minutes of work the next time a job runs there.
+Structure matching is exact-match on canonical SMILES, so it counts a molecule as
+unseen when the two datasets record different stereochemistry, salt forms, or
+tautomers for what a chemist would call the same compound. All 2000 test SMILES
+parsed, so there is no silent drop-out, but 49.25% remains a floor rather than a
+ceiling. An InChIKey-prefix or scaffold-level match would put an upper bound on it.
+
+The larger caveat is question 1. Comparing 28.45 to 38.7 assumes V2 preserved the
+paper's split, and nothing local can establish that.
 
 ## What the contamination does not touch
 
@@ -155,10 +164,10 @@ halves of the split:
 | Subset | Normal | Neighbour's graph | Drop |
 |---|---:|---:|---:|
 | Whole split | 49.04 | 18.63 | 30.41 |
-| Seen in ChEBI-20 train | 94.33 | 29.13 | 65.20 |
-| Not seen | 38.86 | 16.03 | 22.83 |
+| Seen in ChEBI-20 train | 63.75 | 20.72 | 43.04 |
+| Not seen | 28.45 | 15.61 | 12.84 |
 
-Substituting the neighbouring molecule's graph costs 22.83 BLEU-2 even on the 1533
+Substituting the neighbouring molecule's graph roughly halves the score on the 1015
 molecules the checkpoint never trained on. Since the finding replicates on a second
 dataset, under a second caption distribution, on data the model has provably not seen,
 contamination cannot explain it.
@@ -166,7 +175,7 @@ contamination cannot explain it.
 ## Why there is no PubChem-native comparison run
 
 The obvious control is a PubChem324k model on this same split, since it would be clean
-on all 467 contaminated rows. It does not exist. Enumerating the release gives seven
+on all 985 contaminated rows. It does not exist. Enumerating the release gives seven
 files:
 
 | File | What it is |
@@ -185,22 +194,29 @@ gap I chose to leave: property prediction needs a trained classifier head and IU
 needs an IUPAC-tuned checkpoint, and the release contains neither. Transfer was the only
 way to touch PubChem324k at all.
 
-One control does remain cheap and is worth running. Evaluating `stage2.ckpt` on this
-split would be weak as a captioning number, given the missing fine-tune, but it has
-never seen ChEBI-20's train split, so its score on the 467 contaminated molecules should
-sit near its score on the other 1533. Confirming that would turn the contamination
-diagnosis from an inference into a measurement.
+That control was tried anyway, as job `186483`, on the reasoning that `stage2.ckpt`
+has never seen ChEBI-20's train split and so should score alike on both halves.
+
+**It returned nothing usable: 0.18 BLEU-2, with 1605 of 2000 outputs empty.**
+Without the fine-tune the model does not produce captions at all, so the result is
+void rather than negative. It says nothing about contamination and only confirms
+what the release inventory already implied, that stage-2 pretraining alone is not a
+captioner. The contamination diagnosis in question 2 therefore rests on the
+seen-versus-unseen split within `chebi.ckpt`'s own predictions, which is weaker than
+an independent control would have been.
 
 ## For whoever picks this up
 
-1. **Do not quote 49.04 as a transfer result.** Quote 38.86, and say what was removed.
-2. Redo the overlap on canonical structures rather than captions, converting "at least
-   23.35%" into a real number. `cluster/queued/dump_smiles.py` does the dumping and
-   `transfer_overlap.py --smiles` consumes it, so this is one cluster command away.
+1. **Do not quote 49.04 as a transfer result.** Quote 28.45, and say what was removed.
+2. ~~Redo the overlap on structures.~~ **Done**, job `186489`. 49.25%, and it moved the
+   conclusion rather than confirming it.
 3. Look for an archived copy of `acharkq/PubChem324k`, or ask the authors directly
-   whether V2 preserved the split. Either closes question 1.
-4. Run `stage2.ckpt` on this split as the contamination control described above. It is
-   one job, and it converts the diagnosis into a measurement. **In flight.**
-5. If question 1 closes favourably, the 38.86 against 38.7 comparison becomes worth
+   whether V2 preserved the split. Either closes question 1, and nothing else will.
+4. ~~Run `stage2.ckpt` as the contamination control.~~ **Done and void**, job `186483`,
+   0.18 BLEU-2 with 1605 of 2000 outputs empty.
+5. Put an upper bound on the contamination with InChIKey-prefix or scaffold matching.
+   Exact canonical SMILES misses stereochemistry and salt-form variants, so 49.25% is
+   a floor. This needs no cluster time, only rdkit locally.
+6. If question 1 closes favourably, the 28.45 against 38.7 comparison becomes worth
    writing up properly. If it does not, the transfer run still carries the channel
    conflict replication, which never depended on the comparison.

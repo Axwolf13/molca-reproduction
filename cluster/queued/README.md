@@ -5,109 +5,74 @@ this directory has. It is kept separate so the evidentiary record stays clean:
 a reader can tell at a glance which scripts produced results and which are
 proposals.
 
-Two pieces of work sit here. Neither is necessary. The study in `../../README.md`
-is complete and internally consistent without them.
+Four jobs remain here, and between them they would close the last open question
+this study can close on its own hardware.
 
-## 1. Structure-level overlap (no GPU, about a minute)
+## What already ran, and what it changed
 
-`transfer_overlap.py` matches molecules by caption text, because the prediction
-dumps carry nothing else. That makes the 23.35% contamination figure a floor
-rather than a measurement, and it is the whole content of Limitation 8.
+Two items that used to sit in this directory have since gone through the cluster.
+Both are worth reading before submitting anything else.
 
-`dump_smiles.py` fixes it. Run it on the cluster, where both datasets and rdkit
-2026.3.5 are present:
+- **`dump_smiles.py`** (job `186489`) worked exactly as intended and moved a
+  headline number. Structural matching found 49.25% contamination in the
+  PubChem324kV2 test split against caption matching's 23.35%, which took the clean
+  transfer score from 38.86 to 28.45 and reversed section 11's conclusion. The
+  script now lives in `../scripts/`.
+- **`chebi_filler_end6`** (job `186488`) was the designated gate and it was
+  confounded. Appending filler after the whole prompt does not leave the geometry
+  untouched, because it displaces the soft prompts from the generation point. It
+  scored 37.26 with 54 empty outputs, and the four jobs below were cancelled on
+  the strength of that.
 
-```bash
-cd /home/mllp26_team007/MolCA
-source /home/mllp26_team007/molca_env/bin/activate
-cp <this directory>/dump_smiles.py .
-python dump_smiles.py --out smiles_dump
-```
+That cancellation was the wrong call, though a reasonable one at the time.
 
-It writes `pubchem_test_smiles.jsonl` (2000 rows, in dataset order, carrying a
-`text_head` field so row alignment against the prediction dump can be asserted
-rather than assumed) and `chebi_smiles.jsonl` (all three ChEBI-20 splits). Both
-carry the rdkit canonical form alongside the raw string, which is what makes the
-comparison meaningful when two datasets disagree about kekulisation or atom
-ordering for the same structure.
+## The gate that matters passed
 
-Bring both files back, drop them in `../results/`, and the overlap can be redone
-on structures. Expect the number to rise, since caption matching can only miss
-contamination and never invent it.
+`chebi_filler_mid6` (job `186523`) puts the filler **between** the SMILES span and
+the soft prompts, so the template ending the checkpoint was fine-tuned on stays
+intact. It scored **53.60 BLEU-2 with zero empty outputs**, retaining 86% of
+baseline while pushing the SMILES 37 Galactica tokens further from generation.
 
-## 2. The distance experiment (six jobs, roughly 1.8 GPU-hours each)
+That is a working instrument, and it is the reference the remaining jobs score
+against.
 
-This is the only open methodological weakness in the study. Section 3 shows the
-model follows the graph rather than the SMILES, but the graph soft prompts sit
-nearest the generation point, so "the graph wins" stays confounded with "the
-nearest channel wins". Section 6 attacked this by reordering, which collapsed
-generation to 0.01 BLEU-2 and settled nothing.
+## The four jobs
 
-Reordering is not the only lever. Leaving the order alone and changing the
-*distance* asks the same question without breaking the prompt:
+| Job | Measures | Reference |
+|---|---|---|
+| `chebi_filler_mid6_shufsmiles` | SMILES cost at +37 tokens | 53.60, against +14.91 at normal distance |
+| `chebi_filler_mid6_shufgraph` | Graph cost, the graph having not moved | 53.60, against +36.70 at normal distance |
+| `chebi_filler_mid2` | Baseline at +13 tokens | 62.32 at zero |
+| `chebi_filler_mid2_shufsmiles` | SMILES cost at +13 tokens | the row above |
 
-| Variable | Effect |
-|---|---|
-| `MOLCA_FILLER_MID=k` | Filler between the SMILES span and the soft prompts. The SMILES moves away from generation; the graph does not |
-| `MOLCA_FILLER_END=k` | Filler after the whole prompt. Both channels move equally, so the relative geometry is untouched |
+The first two are the measurement. The `mid2` pair turns a single contrast into a
+dose-response curve, which is the difference between "the number moved" and "the
+number moves with distance", so run all four if the slots exist and the first two
+if they do not.
 
-The unit is `It is a chemical entity. `, true of every molecule, so repeating it
-adds distance rather than information. Measured against the Galactica tokeniser,
-k=2 is 13 tokens and k=6 is 37, against the graph's footprint of 8.
+Reading the result:
 
-### Running it
+- **SMILES cost falls as distance grows.** Position is doing real work and
+  section 3's central finding needs qualifying.
+- **SMILES cost holds near +14.91 at both distances.** Distance is not the
+  mechanism, and the modality reading survives a test built to break it.
+- **Graph cost drifts off +36.70.** The graph never moved, so a change there means
+  the filler is doing something other than adding distance. Treat the whole
+  experiment as void.
+
+## Running them
 
 ```bash
 cd /home/mllp26_team007/MolCA
 python <this directory>/apply_filler_patch.py     # idempotent, --revert undoes it
 cp <this directory>/*.sub <this directory>/run_chebi_filler_*.sh <job dir>/
-condor_submit chebi_filler_end6.sub               # the gate, read it first
+condor_submit chebi_filler_mid6_shufsmiles.sub
 ```
 
 The patch is line-anchored rather than block-anchored, because the two machines
 patched `smiles_handler` differently. It refuses to run rather than guessing if
-the file has drifted further, and it saves a `.prefiller` backup.
-
-### The gate
-
-`chebi_filler_end6` runs baseline inputs with filler appended after the whole
-prompt. Since both channels move equally, nothing about the comparison in section
-3 should change, and the score should land near the 62.32 baseline.
-
-**If it collapses the way the reordering test did, stop.** The filler itself is
-then the confound and the remaining five jobs measure nothing. That failure is
-worth recording either way, since it would establish that this checkpoint tolerates
-no deviation from its fine-tuning template at all, which is a sharper version of
-section 6's finding rather than a wasted night.
-
-### What the remaining five jobs decide
-
-The reference costs on the unmodified prompt, both from `../../bootstrap.py`:
-
-| Contrast | Cost at normal distance |
-|---|---|
-| baseline − shuffle_smiles | **+14.91** |
-| baseline − shuffle_graph | **+36.70** |
-
-| Job pair | Measures |
-|---|---|
-| `mid2` − `mid2_shufsmiles` | SMILES cost with the SMILES 13 tokens further away |
-| `mid6` − `mid6_shufsmiles` | The same at 37 tokens |
-| `mid6` − `mid6_shufgraph` | Graph cost. The graph never moved, so this should stay near +36.70 |
-
-Read the three numbers as a curve:
-
-- **Cost falls as k grows.** Distance is doing real work, and section 3's result
-  is at least partly positional. That would qualify the central finding, which is
-  exactly why the experiment is worth running.
-- **Cost stays near +14.91 at both levels.** Distance is not the mechanism, and
-  the modality reading survives a test designed to break it.
-- **The graph control moves.** The filler is doing something other than adding
-  distance, and neither reading is safe. Treat the whole experiment as void.
-
-I put the odds of a clean result at roughly two in five, the gate being the
-likely failure point. That is a reasonable bet against idle GPUs overnight and a
-poor one against anything with a deadline.
+the file has drifted further, and it saves a `.prefiller` backup. It is already
+applied on the cluster, where `../patches_cluster.diff` records the result.
 
 ## What is deliberately not here
 
@@ -116,3 +81,6 @@ Fine-tuning `stage2.ckpt` on PubChem324k's train subset would reproduce Table 2a
 epochs, costed at 6 GPU-hours on the authors' hardware and considerably more on a
 P100. That is a training run rather than an evaluation, which puts it outside what
 this study set out to do.
+
+Job `186483` tested whether the released `stage2.ckpt` could stand in without that
+fine-tune. It could not: 0.18 BLEU-2, 1605 of 2000 outputs empty.

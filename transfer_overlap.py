@@ -182,12 +182,13 @@ def main():
     seen = bleu2(seen_idx, *data)
     unseen = bleu2(unseen_idx, *data)
 
+    kind = "structure" if struct is not None else "caption"
     print("BLEU-2 by subset")
     print("  %-34s %5d molecules   %6.2f" % ("whole test split", total, overall))
     print("  %-34s %5d molecules   %6.2f"
-          % ("caption seen in ChEBI-20 train", len(seen_idx), seen))
+          % (kind + " seen in ChEBI-20 train", len(seen_idx), seen))
     print("  %-34s %5d molecules   %6.2f"
-          % ("caption not seen in ChEBI-20 train", len(unseen_idx), unseen))
+          % (kind + " not seen in ChEBI-20 train", len(unseen_idx), unseen))
     print("  %-34s %5s              %+6.2f" % ("contamination gap", "", seen - unseen))
 
     rng = random.Random(args.seed)
