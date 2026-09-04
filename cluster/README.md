@@ -9,7 +9,7 @@ around it is what turns a single number into a reproduction.
 
 | | Cluster (this directory) | Local (`../results/`) |
 |---|---|---|
-| GPU | Tesla P100, one per job | RTX 4060 Laptop, 8 GB |
+| GPU | Tesla P100 for captioning, see below for retrieval | RTX 4060 Laptop, 8 GB |
 | Scheduler | HTCondor, `universe = docker` | none, a bash supervisor |
 | Base image | `pytorch/pytorch:2.3.1-cuda12.1-cudnn8-devel` | n/a |
 | Python | 3.10 | 3.13.2 |
@@ -126,6 +126,25 @@ own batch, which makes the score a function of `--match_batch_size` and of the
 shuffle seed. Since the paper does not state the batch size it evaluated with,
 the in-batch columns are the weaker comparison of the two. I therefore treat
 the full-test-set figures as the reproduction.
+
+### Which GPU ran retrieval
+
+Every captioning job used a Tesla P100, and job `183286` proves it by dying on a
+bfloat16 dtype mismatch that Pascal hardware produces and Ampere does not.
+
+Retrieval is less certain, and the honest answer is that the artefacts do not
+say. `scripts/` holds two submit files per split: `pcdes.sub` and `momu.sub`
+place no constraint on the device, while `pcdes_a100.sub` and `momu_a100.sub`
+differ from them by exactly one line, `require_gpus = (Capability >= 8.0)`, which
+excludes the P100 at capability 6.0. Both variants write their output to the same
+`runlogs/pcdes.$(ClusterId).out` path, so the surviving logs cannot say which one
+was submitted, and Lightning records only `GPU available: True (cuda)` with a
+device UUID rather than a model name.
+
+Nothing in the retrieval result depends on this. Full-test-set retrieval is
+deterministic given the checkpoint and the candidate pool, and all 32 metrics
+were diffed against the paper regardless of device. It is recorded here because
+the configuration table above would otherwise claim more than the logs support.
 
 One incidental check the logs happen to supply: every `val_*` row is identical
 between the PCDes job and the MoMu job. Since `--use_phy_eval` swaps only the

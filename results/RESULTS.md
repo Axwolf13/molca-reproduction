@@ -201,6 +201,14 @@ per iteration works out to roughly 11 GPU-hours. On the cluster both splits
 completed. Raw Lightning output, box drawing intact, sits in
 [`../cluster/results/results_retrieval.txt`](../cluster/results/results_retrieval.txt).
 
+These two jobs are the one place where the cluster hardware is not pinned down.
+Alternative submit files requesting compute capability 8.0 or better exist
+alongside the unconstrained ones, both write to the same log path, and Lightning
+records no device model, so the artefacts cannot say whether retrieval ran on the
+P100 used everywhere else. Full-test-set retrieval is deterministic given the
+checkpoint and the candidate pool, so no number below depends on the answer.
+`../cluster/README.md` sets out the evidence.
+
 Full test set, contrastive scoring alone. This is the paper's `MolCA w/o MTM`
 row, Tables 7b and 7c:
 
@@ -560,11 +568,12 @@ evidence. The eight conditions are seven distinct manipulations.
 **2. Position is confounded with modality, and the confound is small.** Closed
 rather than open, though not for free. Reordering the prompt (§6) destroyed the
 model and settled nothing. Displacing the SMILES 37 tokens instead (§12) reduces
-its contribution by 2.6 points of a 23.9% effect while leaving the graph's
-unchanged, taking the ratio between the channels from 2.46× to 2.74×. Recency
-exists and cannot account for the dominance. The residual caveat is that one
-displacement at one distance is a two-point curve; `chebi_filler_mid2` would add
-a third.
+its contribution by 2.6 points of a 23.9% effect, and moves the graph's by 0.5 of
+a 58.9% one, taking the ratio between the channels from 2.46× to 2.74×. Both
+intervals exclude zero, so recency is real rather than absent; it is simply an
+order of magnitude too small to generate the dominance. The residual caveat is
+that one displacement at one distance is a two-point curve; `chebi_filler_mid2`
+would add a third.
 
 **3. The no-SMILES conditions are distribution shift, not information removal.**
 `graph_only` (2.42) and `shuffle_graph_only` (2.23) degenerate into

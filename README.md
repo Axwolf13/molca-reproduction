@@ -184,7 +184,8 @@ Full numbers, controls, and limitations live in
 | `results/predictions/` | 11 prediction files, one per condition, as JSONL |
 | `results/logs/` | Run logs with progress bars stripped and repeats collapsed |
 | `vendor/lavis/` | Minimal vendored LAVIS, BSD-3-Clause, licence retained |
-| `cluster/` | The parallel P100 runs: predictions, logs, submit files, retrieval |
+| `cluster/` | The parallel HTCondor runs: predictions, logs, submit files, retrieval |
+| `verify_numbers.py` | Re-derives the documented figures that no saved output records |
 | `cluster/queued/` | Prepared but unrun: the structure-overlap dump and the distance experiment |
 
 Checkpoints, model weights, datasets, and the virtualenv stay out of the
