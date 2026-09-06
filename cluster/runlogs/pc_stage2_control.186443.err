@@ -1,0 +1,23 @@
+Seed set to 42
+Traceback (most recent call last):
+  File "/home/mllp26_team007/MolCA/stage2.py", line 130, in <module>
+    main(get_args())
+  File "/home/mllp26_team007/MolCA/stage2.py", line 37, in main
+    model = Blip2Stage2.load_from_checkpoint(args.init_checkpoint, strict=False, args=args, map_location='cpu')
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/utilities/model_helpers.py", line 125, in wrapper
+    return self.method(cls, *args, **kwargs)
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/core/module.py", line 1586, in load_from_checkpoint
+    loaded = _load_from_checkpoint(
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/core/saving.py", line 63, in _load_from_checkpoint
+    checkpoint = pl_load(checkpoint_path, map_location=map_location)
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/lightning_fabric/utilities/cloud_io.py", line 56, in _load
+    with fs.open(path_or_url, "rb") as f:
+  File "/opt/conda/lib/python3.10/site-packages/fsspec/spec.py", line 1303, in open
+    f = self._open(
+  File "/opt/conda/lib/python3.10/site-packages/fsspec/implementations/local.py", line 191, in _open
+    return LocalFileOpener(path, mode, fs=self, **kwargs)
+  File "/opt/conda/lib/python3.10/site-packages/fsspec/implementations/local.py", line 355, in __init__
+    self._open()
+  File "/opt/conda/lib/python3.10/site-packages/fsspec/implementations/local.py", line 360, in _open
+    self.f = open(self.path, mode=self.mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/mllp26_team007/MolCA/all_checkpoints/stage2.ckpt'

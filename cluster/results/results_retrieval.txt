@@ -1,0 +1,19 @@
+=== PCDes (job 183393) ===
+│  rerank_test_fullset_g2t_acc  │       48.20000076293945       │
+│ rerank_test_fullset_g2t_rec20 │       85.55999755859375       │
+│  rerank_test_fullset_t2g_acc  │      45.959999084472656       │
+│ rerank_test_fullset_t2g_rec20 │       82.22000122070312       │
+│     test_fullset_g2t_acc      │      37.689998626708984       │
+│    test_fullset_g2t_rec20     │       80.58999633789062       │
+│     test_fullset_t2g_acc      │       35.36000061035156       │
+│    test_fullset_t2g_rec20     │       76.55000305175781       │
+
+=== MoMu (job 183394) ===
+│  rerank_test_fullset_g2t_acc  │      30.549999237060547       │
+│ rerank_test_fullset_g2t_rec20 │       76.7699966430664        │
+│  rerank_test_fullset_t2g_acc  │       29.68000030517578       │
+│ rerank_test_fullset_t2g_rec20 │       73.31999969482422       │
+│     test_fullset_g2t_acc      │      22.469999313354492       │
+│    test_fullset_g2t_rec20     │       68.44999694824219       │
+│     test_fullset_t2g_acc      │      21.139999389648438       │
+│    test_fullset_t2g_rec20     │       64.76000213623047       │

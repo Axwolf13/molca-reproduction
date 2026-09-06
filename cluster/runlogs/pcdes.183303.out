@@ -1,0 +1,57 @@
+==========
+== CUDA ==
+==========
+CUDA Version 12.1.1
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+=========================================
+accelerator = gpu
+batch_size = 64
+bert_hidden_dim = 768
+bert_name = scibert
+check_val_every_n_epoch = 1
+cross_attention_freq = 2
+devices = [0]
+drop_ratio = 0.0
+filename = pcdes_evaluation
+filtered_cid_path = None
+gin_hidden_dim = 300
+gin_num_layers = 5
+graph_aug = dnodes
+gtm = True
+init_checkpoint = all_checkpoints/stage1.ckpt
+init_lr = 0.0001
+lm = True
+lr_decay_rate = 0.9
+match_batch_size = 64
+max_epochs = 50
+min_lr = 1e-05
+mode = eval
+num_query_token = 8
+num_workers = 4
+precision = 16-mixed
+projection_dim = 256
+rerank_cand_num = 128
+retrieval_eval_epoch = 10
+root = data/kv_data
+save_every_n_epochs = 10
+scheduler = linear_warmup_cosine_lr
+seed = 42
+temperature = 0.1
+text_aug = False
+text_max_len = 128
+tune_gnn = False
+use_phy_eval = False
+use_smiles = False
+warmup_lr = 1e-06
+warmup_steps = 1000
+weight_decay = 0.05
+=========================================
+bert load scibert
+loading model from all_checkpoints/stage1.ckpt
+total params: 178768185
+Loading dataset
+[0]

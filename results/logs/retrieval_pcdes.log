@@ -1,0 +1,75 @@
+Seed set to 42
+BertLMHeadModel has generative capabilities, as `prepare_inputs_for_generation` is explicitly overwritten. However, it doesn't directly inherit from `GenerationMixin`. From 👉v4.50👈 onwards, `PreTrainedModel` will NOT inherit from `GenerationMixin`, and this model will lose the ability to call `generate` and other related functions.
+  - If you're using `trust_remote_code=True`, you can get rid of this warning by loading the model with an auto class. See https://huggingface.co/docs/transformers/en/model_doc/auto#auto-classes
+  - If you are the owner of the model architecture code, please modify your model class such that it inherits from `GenerationMixin` (after `PreTrainedModel`, otherwise you'll get an exception).
+  - If you are not the owner of the model architecture class, please contact the model code owner to update it.
+Some weights of BertLMHeadModel were not initialized from the model checkpoint at allenai/scibert_scivocab_uncased and are newly initialized: ['bert.encoder.layer.0.crossattention.output.LayerNorm.bias', 'bert.encoder.layer.0.crossattention.output.LayerNorm.weight', 'bert.encoder.layer.0.crossattention.output.dense.bias', 'bert.encoder.layer.0.crossattention.output.dense.weight', 'bert.encoder.layer.0.crossattention.self.key.bias', 'bert.encoder.layer.0.crossattention.self.key.weight', 'bert.encoder.layer.0.crossattention.self.query.bias', 'bert.encoder.layer.0.crossattention.self.query.weight', 'bert.encoder.layer.0.crossattention.self.value.bias', 'bert.encoder.layer.0.crossattention.self.value.weight', 'bert.encoder.layer.0.intermediate_query.dense.bias', 'bert.encoder.layer.0.intermediate_query.dense.weight', 'bert.encoder.layer.0.output_query.LayerNorm.bias', 'bert.encoder.layer.0.output_query.LayerNorm.weight', 'bert.encoder.layer.0.output_query.dense.bias', 'bert.encoder.layer.0.output_query.dense.weight', 'bert.encoder.layer.1.intermediate_query.dense.bias', 'bert.encoder.layer.1.intermediate_query.dense.weight', 'bert.encoder.layer.1.output_query.LayerNorm.bias', 'bert.encoder.layer.1.output_query.LayerNorm.weight', 'bert.encoder.layer.1.output_query.dense.bias', 'bert.encoder.layer.1.output_query.dense.weight', 'bert.encoder.layer.10.crossattention.output.LayerNorm.bias', 'bert.encoder.layer.10.crossattention.output.LayerNorm.weight', 'bert.encoder.layer.10.crossattention.output.dense.bias', 'bert.encoder.layer.10.crossattention.output.dense.weight', 'bert.encoder.layer.10.crossattention.self.key.bias', 'bert.encoder.layer.10.crossattention.self.key.weight', 'bert.encoder.layer.10.crossattention.self.query.bias', 'bert.encoder.layer.10.crossattention.self.query.weight', 'bert.encoder.layer.10.crossattention.self.value.bias', 'bert.encoder.layer.10.crossattention.self.value.weight', 'bert.encoder.layer.10.intermediate_query.dense.bias', 'bert.encoder.layer.10.intermediate_query.dense.weight', 'bert.encoder.layer.10.output_query.LayerNorm.bias', 'bert.encoder.layer.10.output_query.LayerNorm.weight', 'bert.encoder.layer.10.output_query.dense.bias', 'bert.encoder.layer.10.output_query.dense.weight', 'bert.encoder.layer.11.intermediate_query.dense.bias', 'bert.encoder.layer.11.intermediate_query.dense.weight', 'bert.encoder.layer.11.output_query.LayerNorm.bias', 'bert.encoder.layer.11.output_query.LayerNorm.weight', 'bert.encoder.layer.11.output_query.dense.bias', 'bert.encoder.layer.11.output_query.dense.weight', 'bert.encoder.layer.2.crossattention.output.LayerNorm.bias', 'bert.encoder.layer.2.crossattention.output.LayerNorm.weight', 'bert.encoder.layer.2.crossattention.output.dense.bias', 'bert.encoder.layer.2.crossattention.output.dense.weight', 'bert.encoder.layer.2.crossattention.self.key.bias', 'bert.encoder.layer.2.crossattention.self.key.weight', 'bert.encoder.layer.2.crossattention.self.query.bias', 'bert.encoder.layer.2.crossattention.self.query.weight', 'bert.encoder.layer.2.crossattention.self.value.bias', 'bert.encoder.layer.2.crossattention.self.value.weight', 'bert.encoder.layer.2.intermediate_query.dense.bias', 'bert.encoder.layer.2.intermediate_query.dense.weight', 'bert.encoder.layer.2.output_query.LayerNorm.bias', 'bert.encoder.layer.2.output_query.LayerNorm.weight', 'bert.encoder.layer.2.output_query.dense.bias', 'bert.encoder.layer.2.output_query.dense.weight', 'bert.encoder.layer.3.intermediate_query.dense.bias', 'bert.encoder.layer.3.intermediate_query.dense.weight', 'bert.encoder.layer.3.output_query.LayerNorm.bias', 'bert.encoder.layer.3.output_query.LayerNorm.weight', 'bert.encoder.layer.3.output_query.dense.bias', 'bert.encoder.layer.3.output_query.dense.weight', 'bert.encoder.layer.4.crossattention.output.LayerNorm.bias', 'bert.encoder.layer.4.crossattention.output.LayerNorm.weight', 'bert.encoder.layer.4.crossattention.output.dense.bias', 'bert.encoder.layer.4.crossattention.output.dense.weight', 'bert.encoder.layer.4.crossattention.self.key.bias', 'bert.encoder.layer.4.crossattention.self.key.weight', 'bert.encoder.layer.4.crossattention.self.query.bias', 'bert.encoder.layer.4.crossattention.self.query.weight', 'bert.encoder.layer.4.crossattention.self.value.bias', 'bert.encoder.layer.4.crossattention.self.value.weight', 'bert.encoder.layer.4.intermediate_query.dense.bias', 'bert.encoder.layer.4.intermediate_query.dense.weight', 'bert.encoder.layer.4.output_query.LayerNorm.bias', 'bert.encoder.layer.4.output_query.LayerNorm.weight', 'bert.encoder.layer.4.output_query.dense.bias', 'bert.encoder.layer.4.output_query.dense.weight', 'bert.encoder.layer.5.intermediate_query.dense.bias', 'bert.encoder.layer.5.intermediate_query.dense.weight', 'bert.encoder.layer.5.output_query.LayerNorm.bias', 'bert.encoder.layer.5.output_query.LayerNorm.weight', 'bert.encoder.layer.5.output_query.dense.bias', 'bert.encoder.layer.5.output_query.dense.weight', 'bert.encoder.layer.6.crossattention.output.LayerNorm.bias', 'bert.encoder.layer.6.crossattention.output.LayerNorm.weight', 'bert.encoder.layer.6.crossattention.output.dense.bias', 'bert.encoder.layer.6.crossattention.output.dense.weight', 'bert.encoder.layer.6.crossattention.self.key.bias', 'bert.encoder.layer.6.crossattention.self.key.weight', 'bert.encoder.layer.6.crossattention.self.query.bias', 'bert.encoder.layer.6.crossattention.self.query.weight', 'bert.encoder.layer.6.crossattention.self.value.bias', 'bert.encoder.layer.6.crossattention.self.value.weight', 'bert.encoder.layer.6.intermediate_query.dense.bias', 'bert.encoder.layer.6.intermediate_query.dense.weight', 'bert.encoder.layer.6.output_query.LayerNorm.bias', 'bert.encoder.layer.6.output_query.LayerNorm.weight', 'bert.encoder.layer.6.output_query.dense.bias', 'bert.encoder.layer.6.output_query.dense.weight', 'bert.encoder.layer.7.intermediate_query.dense.bias', 'bert.encoder.layer.7.intermediate_query.dense.weight', 'bert.encoder.layer.7.output_query.LayerNorm.bias', 'bert.encoder.layer.7.output_query.LayerNorm.weight', 'bert.encoder.layer.7.output_query.dense.bias', 'bert.encoder.layer.7.output_query.dense.weight', 'bert.encoder.layer.8.crossattention.output.LayerNorm.bias', 'bert.encoder.layer.8.crossattention.output.LayerNorm.weight', 'bert.encoder.layer.8.crossattention.output.dense.bias', 'bert.encoder.layer.8.crossattention.output.dense.weight', 'bert.encoder.layer.8.crossattention.self.key.bias', 'bert.encoder.layer.8.crossattention.self.key.weight', 'bert.encoder.layer.8.crossattention.self.query.bias', 'bert.encoder.layer.8.crossattention.self.query.weight', 'bert.encoder.layer.8.crossattention.self.value.bias', 'bert.encoder.layer.8.crossattention.self.value.weight', 'bert.encoder.layer.8.intermediate_query.dense.bias', 'bert.encoder.layer.8.intermediate_query.dense.weight', 'bert.encoder.layer.8.output_query.LayerNorm.bias', 'bert.encoder.layer.8.output_query.LayerNorm.weight', 'bert.encoder.layer.8.output_query.dense.bias', 'bert.encoder.layer.8.output_query.dense.weight', 'bert.encoder.layer.9.intermediate_query.dense.bias', 'bert.encoder.layer.9.intermediate_query.dense.weight', 'bert.encoder.layer.9.output_query.LayerNorm.bias', 'bert.encoder.layer.9.output_query.LayerNorm.weight', 'bert.encoder.layer.9.output_query.dense.bias', 'bert.encoder.layer.9.output_query.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+Using 16bit Automatic Mixed Precision (AMP)
+C:\Users\aksha\OneDrive - Universität des Saarlandes\Desktop\Projects\MolCA\molca_venv\Lib\site-packages\pytorch_lightning\plugins\precision\amp.py:52: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+Missing logger folder: ./all_checkpoints/local_retrieval_pcdes/lightning_logs
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+C:\Users\aksha\OneDrive - Universität des Saarlandes\Desktop\Projects\MolCA\molca_venv\Lib\site-packages\torch\nn\modules\module.py:1369: UserWarning: expandable_segments not supported on this platform (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\c10/cuda/CUDAAllocatorConfig.h:40.)
+  return t.to(
+C:\Users\aksha\OneDrive - Universität des Saarlandes\Desktop\Projects\MolCA\molca_venv\Lib\site-packages\pytorch_lightning\utilities\_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+C:\Users\aksha\OneDrive - Universität des Saarlandes\Desktop\Projects\MolCA\molca_venv\Lib\site-packages\pytorch_lightning\trainer\connectors\data_connector.py:424: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=15` in the `DataLoader` to improve performance.
+=========================================
+accelerator = gpu
+batch_size = 16
+bert_hidden_dim = 768
+bert_name = scibert
+check_val_every_n_epoch = 1
+cross_attention_freq = 2
+devices = [0]
+drop_ratio = 0.0
+filename = local_retrieval_pcdes
+filtered_cid_path = None
+gin_hidden_dim = 300
+gin_num_layers = 5
+graph_aug = dnodes
+gtm = True
+init_checkpoint = all_checkpoints/stage1.ckpt
+init_lr = 0.0001
+lm = True
+lr_decay_rate = 0.9
+match_batch_size = 16
+max_epochs = 50
+min_lr = 1e-05
+mode = eval
+num_query_token = 8
+num_workers = 0
+precision = 16-mixed
+projection_dim = 256
+rerank_cand_num = 128
+retrieval_eval_epoch = 10
+root = data/kv_data
+save_every_n_epochs = 10
+scheduler = linear_warmup_cosine_lr
+seed = 42
+temperature = 0.1
+text_aug = False
+text_max_len = 128
+tune_gnn = False
+use_phy_eval = False
+use_smiles = False
+warmup_lr = 1e-06
+warmup_steps = 1000
+weight_decay = 0.05
+=========================================
+bert load scibert
+loading model from all_checkpoints/stage1.ckpt
+total params: 178768185
+Loading dataset
+[0]
+Validation: |          | 0/? [00:00<?, ?it/s]
+Validation DataLoader 0: 100%|██████████| 94/94 [00:34<00:00,  2.71it/s]
+100%|██████████| 94/94 [01:17<00:00,  1.39it/s][A
+100%|██████████| 94/94 [01:17<00:00,  1.21it/s]
+100%|██████████| 188/188 [00:00<00:00, 1001.82it/s]
+100%|██████████| 188/188 [03:40<00:00,  1.09it/s][A
+100%|██████████| 188/188 [03:40<00:00,  1.17s/it]
+100%|██████████| 375/375 [00:00<00:00, 502.00it/s]

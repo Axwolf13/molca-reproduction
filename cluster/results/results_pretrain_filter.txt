@@ -1,0 +1,26 @@
+PubChem324kV2 pretrain   298083 rows,  298010 distinct structures, 0 unparseable
+PubChem324kV2 train       12000 rows,   12000 distinct structures, 0 unparseable
+PubChem324kV2 valid        1000 rows,    1000 distinct structures, 0 unparseable
+PubChem324kV2 test         2000 rows,    2000 distinct structures, 0 unparseable
+ChEBI-20      train       26407 rows,   26407 distinct structures, 0 unparseable
+ChEBI-20      validation    3301 rows,    3301 distinct structures, 0 unparseable
+ChEBI-20      test         3300 rows,    3300 distinct structures, 0 unparseable
+
+Overlap, counted as distinct structures present in both
+
+  PubChem split  ChEBI split    shared   verdict
+  pretrain       train           16777   not filtered, expected
+  pretrain       validation          0   FILTER HOLDS
+  pretrain       test                0   FILTER HOLDS
+  train          train            5880   not filtered, expected
+  train          validation        736   not filtered, expected
+  train          test              778   not filtered, expected
+  valid          train             493   not filtered, expected
+  valid          validation         73   not filtered, expected
+  valid          test               45   not filtered, expected
+  test           train             985   not filtered, expected
+  test           validation        120   not filtered, expected
+  test           test              119   not filtered, expected
+
+Headline: 0 ChEBI-20 valid/test structures appear in the PubChem324kV2
+pretrain subset. Section 4.1 says this should be zero.

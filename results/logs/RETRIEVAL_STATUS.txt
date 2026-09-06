@@ -1,0 +1,9 @@
+retrieval queued: 2026-08-31 16:35:58
+[20:16:04] GPU free, starting retrieval
+[20:16:04] START pcdes
+[21:49:49] DONE  pcdes  (93 min)
+accelerator = gpu
+[21:49:49] START momu
+[21:50:04] DONE  momu   (0 min)
+
+retrieval finished: 2026-08-31 21:50:04

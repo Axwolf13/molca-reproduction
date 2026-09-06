@@ -1,0 +1,136 @@
+
+==============================================================================
+A. N-GRAM AGREEMENT (own recomputation; not comparable to the paper)
+==============================================================================
+
+BLEU-2                           graph's molecule        SMILES' molecule          random (floor)
+------------------------------------------------------------------------------------------------
+normal                                      58.41                   58.41                   25.89
+shuffled-graph                              45.91                   28.80                   26.16
+shuffled-graph-rev                          47.14                   29.32                   25.91
+shuffled-SMILES                             47.15                   29.34                   25.82
+shuffled-graph+no-SMILES                     0.00                     n/a                    0.00
+rewired-graph                                 n/a                   23.27                   21.10
+graph-only                                   0.00                     n/a                    0.00
+null-graph                                    n/a                   29.23                   24.53
+
+BLEU-4                           graph's molecule        SMILES' molecule          random (floor)
+------------------------------------------------------------------------------------------------
+normal                                      47.70                   47.70                   13.84
+shuffled-graph                              34.12                   16.38                   13.91
+shuffled-graph-rev                          35.04                   16.75                   13.66
+shuffled-SMILES                             35.05                   16.77                   13.65
+shuffled-graph+no-SMILES                     0.00                     n/a                    0.00
+rewired-graph                                 n/a                   12.56                   10.73
+graph-only                                   0.00                     n/a                    0.00
+null-graph                                    n/a                   16.69                   12.72
+
+ROUGE-L                          graph's molecule        SMILES' molecule          random (floor)
+------------------------------------------------------------------------------------------------
+normal                                      63.50                   63.50                   28.82
+shuffled-graph                              50.82                   31.87                   29.05
+shuffled-graph-rev                          51.41                   32.28                   28.74
+shuffled-SMILES                             51.42                   32.30                   28.56
+shuffled-graph+no-SMILES                     0.03                     n/a                    0.03
+rewired-graph                                 n/a                   30.06                   27.04
+graph-only                                   0.03                     n/a                    0.02
+null-graph                                    n/a                   34.00                   28.50
+
+METEOR                           graph's molecule        SMILES' molecule          random (floor)
+------------------------------------------------------------------------------------------------
+normal                                      61.84                   61.84                   27.72
+shuffled-graph                              49.45                   31.80                   28.68
+shuffled-graph-rev                          50.24                   31.86                   28.20
+shuffled-SMILES                             50.24                   31.91                   27.96
+shuffled-graph+no-SMILES                     0.02                     n/a                    0.02
+rewired-graph                                 n/a                   26.17                   23.63
+graph-only                                   0.02                     n/a                    0.01
+null-graph                                    n/a                   32.79                   27.40
+
+n/a = that channel had no referent molecule: the graph was corrupted
+      rather than substituted (rewire, null), or the SMILES was withheld.
+
+==============================================================================
+B. CHEMICAL-CLASS AGREEMENT (F1; floor is near zero, unlike BLEU)
+==============================================================================
+
+matching = exact                 graph's molecule        SMILES' molecule          random (floor)
+------------------------------------------------------------------------------------------------
+normal                                      39.77                   39.77                    0.26
+shuffled-graph                              17.92                    2.18                    0.19
+shuffled-graph-rev                          17.86                    1.89                    0.32
+shuffled-SMILES                             17.95                    1.89                    0.29
+shuffled-graph+no-SMILES                     0.00                     n/a                    0.00
+rewired-graph                                 n/a                    1.90                    0.16
+graph-only                                   0.00                     n/a                    0.00
+null-graph                                    n/a                    3.83                    0.24
+
+matching = contain               graph's molecule        SMILES' molecule          random (floor)
+------------------------------------------------------------------------------------------------
+normal                                      44.73                   44.73                    0.70
+shuffled-graph                              23.51                    3.08                    0.51
+shuffled-graph-rev                          23.28                    2.88                    0.61
+shuffled-SMILES                             23.35                    2.88                    0.70
+shuffled-graph+no-SMILES                     0.00                     n/a                    0.00
+rewired-graph                                 n/a                    3.11                    0.28
+graph-only                                   0.00                     n/a                    0.00
+null-graph                                    n/a                    5.20                    0.41
+
+matching = jaccard               graph's molecule        SMILES' molecule          random (floor)
+------------------------------------------------------------------------------------------------
+normal                                      50.86                   50.86                    1.05
+shuffled-graph                              27.27                    4.05                    0.84
+shuffled-graph-rev                          27.21                    3.81                    1.06
+shuffled-SMILES                             27.32                    3.81                    0.99
+shuffled-graph+no-SMILES                     0.00                     n/a                    0.00
+rewired-graph                                 n/a                    4.12                    0.44
+graph-only                                   0.00                     n/a                    0.00
+null-graph                                    n/a                    6.74                    0.75
+
+==============================================================================
+C. PER-EXAMPLE VERDICTS (what the micro-averaged F1 above hides)
+==============================================================================
+For each molecule: does the caption assert the chemical class of the
+molecule that supplied its GRAPH, or of the one that supplied its
+SMILES? Only conditions where those two differ can be scored, and
+which one was rotated flips between conditions - shuffle_graph moves
+the graph, shuffle_smiles moves the SMILES.
+
+normal: not a conflict condition (the two channels do not name two different molecules); skipped
+
+shuffled-graph (n=1000)   [graph rotated: True | SMILES rotated: False]
+    follows GRAPH      468   46.8%
+    follows SMILES      60    6.0%
+    both                29    2.9%
+    neither            443   44.3%
+    among the 528 decisive cases: 88.6% follow the GRAPH
+
+shuffled-graph-rev (n=1000)   [graph rotated: True | SMILES rotated: False]
+    follows GRAPH      463   46.3%
+    follows SMILES      47    4.7%
+    both                29    2.9%
+    neither            461   46.1%
+    among the 510 decisive cases: 90.8% follow the GRAPH
+
+shuffled-SMILES (n=1000)   [graph rotated: False | SMILES rotated: True]
+    follows GRAPH      464   46.4%
+    follows SMILES      47    4.7%
+    both                29    2.9%
+    neither            460   46.0%
+    among the 511 decisive cases: 90.8% follow the GRAPH
+
+shuffled-graph+no-SMILES: not a conflict condition (the two channels do not name two different molecules); skipped
+
+rewired-graph: not a conflict condition (the two channels do not name two different molecules); skipped
+
+graph-only: not a conflict condition (the two channels do not name two different molecules); skipped
+
+null-graph: not a conflict condition (the two channels do not name two different molecules); skipped
+
+==============================================================================
+D. WORKED EXAMPLE
+==============================================================================
+index 0 (graph came from index 1)
+  its own SMILES describes : The molecule is a steroid ester that is methyl (17E)-pregna-4,17-dien-21-oate substituted by oxo groups at positions 3 and 11. It is a 3-oxo-Delta(4) 
+  the graph it was given   : The molecule is a branched amino tetrasaccharide consisting of N-acetyl-beta-D-glucosamine having two alpha-L-fucosyl residues at the 3- and 6-positio
+  the model wrote          : The molecule is a branched amino tetrasaccharide that consists of 2-acetamido-2,6-dimethylcyclohexane-1,6-dione having an alpha-L-fucosyl residue at t

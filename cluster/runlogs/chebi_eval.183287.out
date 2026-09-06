@@ -1,0 +1,71 @@
+==========
+== CUDA ==
+==========
+CUDA Version 12.1.1
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+=========================================
+accelerator = gpu
+accumulate_grad_batches = 1
+batch_size = 32
+bert_hidden_dim = 768
+bert_name = scibert
+caption_eval_epoch = 10
+check_val_every_n_epoch = 1
+ckpt_path = None
+cross_attention_freq = 2
+devices = [0]
+do_sample = False
+drop_ratio = 0.0
+filename = chebi_evaluation
+filtered_cid_path = None
+gin_hidden_dim = 300
+gin_num_layers = 5
+graph_only = False
+inference_batch_size = 8
+init_checkpoint = all_checkpoints/archived/chebi.ckpt
+init_lr = 0.0001
+iupac_prediction = False
+llm_tune = lora
+load_in_8bit = False
+lora_alpha = 32
+lora_dropout = 0.1
+lora_r = 8
+lr_decay_rate = 0.9
+max_epochs = 10
+max_len = 256
+min_len = 8
+min_lr = 1e-05
+mode = eval
+num_beams = 5
+num_query_token = 8
+num_workers = 2
+opt_model = facebook/galactica-1.3b
+optimizer = adamw
+peft_config = None
+peft_dir = all_checkpoints/archived/chebi_lora
+precision = 16-mixed
+prompt = [START_I_SMILES]{}[END_I_SMILES]. 
+reaction_weight = 1.0
+root = data/ChEBI-20_data
+save_every_n_epochs = 10
+scheduler = linear_warmup_cosine_lr
+seed = 42
+stage1_path = 
+stage2_path = all_checkpoints/archived/chebi.ckpt
+strategy_name = None
+text_max_len = 128
+tune_gnn = True
+use_smiles = False
+warmup_lr = 1e-06
+warmup_steps = 1000
+weight_decay = 0.05
+=========================================
+bert load scibert
+loaded init checkpoint from all_checkpoints/archived/chebi.ckpt
+total params: 1426151876
+Validation DataLoader 0:   0%|          | 0/413 [00:00<?, ?it/s]          
+Validation DataLoader 1:  47%|████▋     | 194/413 [52:54<59:43,  0.06it/s]  

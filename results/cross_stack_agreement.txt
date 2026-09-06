@@ -1,0 +1,15 @@
+
+baseline  (n = 3300)
+  same molecules in the same order : 3300 / 3300
+  character-identical captions     : 3095  (93.8%)
+  median similarity                : 1.000
+  captions above 0.95 similarity   : 3171  (96.1%)
+
+shuffle_graph  (n = 3300)
+  same molecules in the same order : 3300 / 3300
+  character-identical captions     : 2261  (68.5%)
+  median similarity                : 1.000
+  captions above 0.95 similarity   : 2332  (70.7%)
+  decomposed by whether both runs substituted the same graph:
+    same wrong graph       2476 molecules, 2261 identical (91.3%)
+    different wrong graph   824 molecules,    0 identical (0.0%)

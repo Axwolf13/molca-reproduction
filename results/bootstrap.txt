@@ -1,0 +1,24 @@
+
+BLEU-2 with a 95% percentile bootstrap, n = 3300 molecules, 2000 resamples
+
+  condition          BLEU-2   95% CI             width
+  baseline            62.32   [ 61.45,  63.18]   1.74
+  shuffle_smiles      47.41   [ 46.54,  47.98]   1.44
+  null_graph          27.40   [ 27.01,  27.82]   0.81
+  shuffle_graph       25.62   [ 25.22,  25.94]   0.73
+  rewire_graph        20.18   [ 19.71,  20.65]   0.94
+
+Paired contrasts. A CI excluding zero means the ordering survives resampling
+of the test set.
+
+  cost of substituting the SMILES       +14.91   [+14.32, +15.91]  excludes 0
+  cost of substituting the graph        +36.70   [+35.91, +37.60]  excludes 0
+  graph cost minus SMILES cost          +21.79   [+20.87, +22.50]  excludes 0
+  no graph minus wrong graph             +1.78   [ +1.37,  +2.30]  excludes 0
+  wrong graph minus incoherent graph     +5.45   [ +4.86,  +5.89]  excludes 0
+
+  corrupting the text channel hurts                    supported
+  corrupting the graph channel hurts                   supported
+  the graph channel matters MORE than the text channel supported
+  a wrong graph is worse than an uninformative one     supported
+  an incoherent graph is worse than a merely wrong one supported

@@ -1,0 +1,40 @@
+[nltk_data] Downloading package wordnet to
+[nltk_data]     /home/mllp26_team007/nltk_data...
+[nltk_data] Downloading package punkt to
+[nltk_data]     /home/mllp26_team007/nltk_data...
+[nltk_data]   Unzipping tokenizers/punkt.zip.
+Seed set to 42
+Traceback (most recent call last):
+  File "/home/mllp26_team007/MolCA/stage2.py", line 130, in <module>
+    main(get_args())
+  File "/home/mllp26_team007/MolCA/stage2.py", line 37, in main
+    model = Blip2Stage2.load_from_checkpoint(args.init_checkpoint, strict=False, args=args)
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/utilities/model_helpers.py", line 125, in wrapper
+    return self.method(cls, *args, **kwargs)
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/core/module.py", line 1586, in load_from_checkpoint
+    loaded = _load_from_checkpoint(
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/pytorch_lightning/core/saving.py", line 63, in _load_from_checkpoint
+    checkpoint = pl_load(checkpoint_path, map_location=map_location)
+  File "/home/mllp26_team007/molca_env/lib/python3.10/site-packages/lightning_fabric/utilities/cloud_io.py", line 57, in _load
+    return torch.load(f, map_location=map_location)  # type: ignore[arg-type]
+  File "/opt/conda/lib/python3.10/site-packages/torch/serialization.py", line 1025, in load
+    return _load(opened_zipfile,
+  File "/opt/conda/lib/python3.10/site-packages/torch/serialization.py", line 1446, in _load
+    result = unpickler.load()
+  File "/opt/conda/lib/python3.10/pickle.py", line 1213, in load
+    dispatch[key[0]](self)
+  File "/opt/conda/lib/python3.10/pickle.py", line 1254, in load_binpersid
+    self.append(self.persistent_load(pid))
+  File "/opt/conda/lib/python3.10/site-packages/torch/serialization.py", line 1416, in persistent_load
+    typed_storage = load_tensor(dtype, nbytes, key, _maybe_decode_ascii(location))
+  File "/opt/conda/lib/python3.10/site-packages/torch/serialization.py", line 1390, in load_tensor
+    wrap_storage=restore_location(storage, location),
+  File "/opt/conda/lib/python3.10/site-packages/torch/serialization.py", line 1321, in restore_location
+    result = default_restore_location(storage, location)
+  File "/opt/conda/lib/python3.10/site-packages/torch/serialization.py", line 390, in default_restore_location
+    result = fn(storage, location)
+  File "/opt/conda/lib/python3.10/site-packages/torch/serialization.py", line 265, in _cuda_deserialize
+    device = validate_cuda_device(location)
+  File "/opt/conda/lib/python3.10/site-packages/torch/serialization.py", line 256, in validate_cuda_device
+    raise RuntimeError('Attempting to deserialize object on CUDA device '
+RuntimeError: Attempting to deserialize object on CUDA device 4 but torch.cuda.device_count() is 1. Please use torch.load with map_location to map your storages to an existing device.
