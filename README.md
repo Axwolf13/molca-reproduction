@@ -243,7 +243,7 @@ a single consumer GPU. Two of them discard work *after* it has already finished.
 | A2 | `blip2_opt.py` hardcodes bf16 in two of three branches | Dtype mismatch on cards without bf16 support |
 | A3 | `all_gather_object` runs unguarded in the eval hook | A finished two-hour run gets thrown away at the last step |
 | A4 | `dist.get_rank()` runs unguarded in the stage-1 loss | Same root cause |
-| A5 | `persistent_workers=True` hardcoded across four datamodules | Illegal whenever `num_workers=0` |
+| A5 | `persistent_workers=True` hardcoded across five datamodules | Illegal whenever `num_workers=0` |
 
 Three further issues fall outside that table:
 
@@ -350,6 +350,11 @@ I am keeping these visible because they change how the results should be read.
   passes `truncation`, `max_length`, and `padding` into `tokenizer.tokenize()`,
   which accepts none of them. Transformers warns once per batch before
   discarding them, leaving the intended 512-token truncation inoperative.
+  On ChEBI-20 this changes nothing, since no reference runs past 512 tokens.
+  On the PubChem324kV2 test split 22 of 2,000 references do. Applying the cut
+  there moves the transfer BLEU-2 from 49.04 to 50.41. Every PubChem number in
+  this repository is scored the way MolCA scores it, without the cut.
+  `verify_numbers.py` checks each of these figures.
 
 ## Citing MolCA
 

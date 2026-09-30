@@ -229,9 +229,12 @@ Consequently **both machines ran fp16**, contrary to what an earlier draft of
 **The retrieval tokenizer bug reproduces identically.** `stage1.py` routes on
 the root path. Because `--root data/kv_data` contains the substring `kv`, every
 documented retrieval command goes down the `Stage1KVPLMDM` branch. That class
-never receives a tokenizer, while the dataset it builds calls one. The cluster
-patch and the local patch fix it the same way, by threading `tokenizer` through
-the constructor. Two independent stacks failing at the same line is the
+never receives a tokenizer, while the dataset it builds calls one. The two
+patches fix it differently. The cluster patch threads the model's own
+`tokenizer` through the constructor; the local one (`apply_patches.py`, D1)
+builds a SciBERT tokenizer inside the datamodule, the way
+`RetrievalDatasetKVPLM` already does. The published retrieval numbers come from
+the cluster version. Two independent stacks failing at the same line is the
 strongest evidence available that the bug is in the release rather than in
 either environment.
 

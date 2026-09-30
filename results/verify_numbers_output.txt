@@ -13,8 +13,12 @@ sec 12 filler between            empty              0         0  RESULTS.md sec 
 sec 12 filler at end             words          26.00     25.97  RESULTS.md sec 12
 sec 12 filler at end             empty             54        54  RESULTS.md sec 12
 sec 12 void control              empty           1605      1605  RESULTS.md sec 12, NOTES.md
+ChEBI-20 refs over 512 tokens    long_refs          0         0  README.md limitations
+PubChem refs over 512 tokens     long_refs         22        22  README.md limitations
+PubChem transfer, as scored      bleu2          49.04     49.04  README.md
+PubChem transfer, 512 cut        bleu2_trunc     50.41     50.41  README.md limitations
 
-All 14 checks reproduce. Every documented number without other saved
+All 18 checks reproduce. Every documented number without other saved
 provenance is derivable from the prediction dumps in this repository.
 
 Two figures in RESULTS.md section 6 are not covered here: the 63.10

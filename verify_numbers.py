@@ -19,6 +19,10 @@ predates that discovery and reports `bert-base-uncased` figures, which is why
 its table reads 63.16 where the pipeline reports 62.65. Both are recomputed here
 under the tokeniser each was produced with.
 
+The last four checks size a scorer bug. `caption_evaluate` passes
+`truncation=True, max_length=512` to `tokenizer.tokenize()`, which ignores both,
+so nothing is ever cut. `bleu2_trunc` scores with the cut applied as intended.
+
 Usage:  python verify_numbers.py
 Exit status is non-zero if any check fails.
 """
@@ -61,9 +65,19 @@ CHECKS = [
      BERT, "empty", 54, "RESULTS.md sec 12"),
     ("sec 12 void control", "cluster/predictions/pc_stage2_control.jsonl",
      BERT, "empty", 1605, "RESULTS.md sec 12, NOTES.md"),
+    ("ChEBI-20 refs over 512 tokens", "cluster/predictions/chebi_evaluation.jsonl",
+     BERT, "long_refs", 0, "README.md limitations"),
+    ("PubChem refs over 512 tokens", "cluster/predictions/pc_transfer.jsonl",
+     BERT, "long_refs", 22, "README.md limitations"),
+    ("PubChem transfer, as scored", "cluster/predictions/pc_transfer.jsonl",
+     BERT, "bleu2", 49.04, "README.md"),
+    ("PubChem transfer, 512 cut", "cluster/predictions/pc_transfer.jsonl",
+     BERT, "bleu2_trunc", 50.41, "README.md limitations"),
 ]
 
-TOL = {"bleu2": 0.005, "words": 0.051, "empty": 0}
+TRUNC = 512  # caption_evaluate's max_length: args.max_len * 2
+
+TOL = {"bleu2": 0.005, "bleu2_trunc": 0.005, "words": 0.051, "empty": 0, "long_refs": 0}
 
 
 def measure(path, tok, cache):
@@ -80,21 +94,25 @@ def measure(path, tok, cache):
             cache[key] = [t for t in tok.tokenize(text) if t not in SPECIAL]
         return cache[key]
 
-    num, den = ([], []), ([], [])
-    hlen, rlen = [], []
-    for row in rows:
-        st, h, r = stats(toks(row["prediction"]), toks(row["target"]))
-        for n in (0, 1):
-            num[n].append(st[n][0])
-            den[n].append(st[n][1])
-        hlen.append(h)
-        rlen.append(r)
+    def score(limit=None):
+        num, den = ([], []), ([], [])
+        hlen, rlen = [], []
+        for row in rows:
+            st, h, r = stats(toks(row["prediction"])[:limit], toks(row["target"])[:limit])
+            for n in (0, 1):
+                num[n].append(st[n][0])
+                den[n].append(st[n][1])
+            hlen.append(h)
+            rlen.append(r)
+        return bleu2(range(len(rows)), num, den, hlen, rlen)
 
     words = [len(row["prediction"].split()) for row in rows]
     return {
-        "bleu2": bleu2(range(len(rows)), num, den, hlen, rlen),
+        "bleu2": score(),
+        "bleu2_trunc": score(TRUNC),
         "words": sum(words) / len(words),
         "empty": sum(1 for row in rows if not row["prediction"].strip()),
+        "long_refs": sum(1 for row in rows if len(toks(row["target"])) > TRUNC),
         "rows": len(rows),
     }
 
@@ -123,7 +141,7 @@ def main():
         got = measured[key][field]
         ok = abs(got - expected) <= TOL[field]
         fails += not ok
-        fmt = "%9d" if field == "empty" else "%9.2f"
+        fmt = "%9d" if field in ("empty", "long_refs") else "%9.2f"
         print(("%-32s %-10s " + fmt + " " + fmt + "  %s%s")
               % (desc, field, expected, got, where, "" if ok else "   <-- MISMATCH"))
 
