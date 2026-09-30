@@ -162,8 +162,8 @@ instead, leaving the template ending intact, does not.
 | Adjacent, as shipped | 62.32 | 23.9% | 58.9% |
 | Pushed 37 tokens away | 53.60 | 21.3% | 58.3% |
 
-Recency is real: the SMILES contributes 2.6 points less once it is further away,
-and the interval excludes zero. It is also far too small to be the mechanism. The
+Recency is real: the SMILES contributes 2.6 points less once it is further away.
+The interval excludes zero. It is also far too small to be the mechanism. The
 ratio between the channels moves from 2.46× to 2.74×, so a recency account would
 have to produce a 2.5× dominance out of an effect worth a tenth of the weaker
 channel.
