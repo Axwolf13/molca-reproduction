@@ -1,0 +1,12 @@
+SMILES cost by distance, laptop only, n = 3300 molecules, 2000 resamples
+
+  units      tokens      clean SMILES cost   95% CI             cluster
+  0          0           62.77      25.1%   [ 23.8,  26.4]    23.9%
+  2          13          60.86      23.2%   [ 22.4,  24.2]    -
+  6          37          55.40      21.3%   [ 20.4,  22.3]    21.3%
+
+Change in SMILES cost, paired (percentage points)
+
+   0 -> 13 tokens    -1.8 pp   [ -3.1,  -0.7]   excludes 0
+  13 -> 37 tokens    -1.9 pp   [ -2.6,  -1.2]   excludes 0
+   0 -> 37 tokens    -3.7 pp   [ -5.0,  -2.5]   excludes 0

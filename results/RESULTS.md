@@ -24,8 +24,8 @@ machines ran fp16, the P100 having rejected bfloat16 outright.
 | RTX 4060 (local) | 1000 | 62.65 |
 
 Three independent measurements of the same checkpoint on the identical test
-split span **0.77 BLEU-2**, across two GPU generations (Pascal → Ada), two
-Python versions, two torch majors, two transformers versions, and a LAVIS that
+split span **0.77 BLEU-2**, across two GPU generations (Pascal to Ada), two
+Python versions, two torch majors, two transformers versions and a LAVIS that
 is pip-installed on one machine and hand-vendored on the other.
 
 The 1000-molecule subset used for the condition matrix lands within **0.12** of
@@ -43,7 +43,7 @@ molecule by molecule, via
 | baseline, 3300 molecules | **93.8%** | 96.1% |
 
 Between a Pascal card and an Ada card, on different Python majors, different
-torch majors, and a LAVIS installed one way and vendored the other, fourteen
+torch majors and a LAVIS installed one way and vendored the other, fourteen
 captions in fifteen come out byte for byte the same.
 
 `shuffle_graph` agrees on only 68.5% of captions. That reason is mechanical
@@ -247,7 +247,7 @@ versions, the two machines group different molecules together even at the same
 and carries no such dependence, which is why I treat those columns as the
 reproduction and the in-batch ones as corroboration.
 
-Re-ranking lifts PCDes graph-to-text accuracy by **10.51** points (37.69 →
+Re-ranking lifts PCDes graph-to-text accuracy by **10.51** points (37.69 to
 48.20) and text-to-graph by **10.60**. Reading the same two rows out of Table 7b
 gives 10.4 and 10.7, so the mechanism's contribution reproduces as closely as
 the endpoints do.
@@ -427,7 +427,7 @@ Withholding the SMILES entirely (`185369`) collapses the run to 2.41e-154,
 reproducing on PubChem the same degenerate floor §3 found on ChEBI-20. The drop
 is smaller here than the 22.83 the caption-matched split suggested, which follows
 from the cleaner subset starting 10 points lower. Since the finding replicates
-across datasets, across caption styles, and on uncontaminated data, neither the
+across datasets, across caption styles and on uncontaminated data, neither the
 overlap nor the split question touches it.
 
 ---
@@ -474,7 +474,7 @@ wrong: appending filler necessarily displaces the soft prompts from the
 generation point, so the "neutral" control was itself a manipulation.
 
 The useful gate turned out to be the other job. `186523` preserves the template
-ending, keeps every output non-empty, and retains 86% of baseline BLEU-2 while
+ending, keeps every output non-empty and retains 86% of baseline BLEU-2 while
 pushing the SMILES 37 tokens away. That is a working instrument, and it was
 never used, because the four conditions that would have used it were cancelled
 when the gate appeared to fail.
@@ -506,9 +506,55 @@ account would have to produce a 2.5× dominance out of an effect worth a tenth o
 the weaker channel.
 
 **§3's confound is therefore closed rather than merely acknowledged.** It exists,
-it is now measured, and it does not carry the result. That is a stronger position
+it is now measured and it does not carry the result. That is a stronger position
 than the reordering test in §6 could ever have reached, since that test destroyed
 the model instead of moving one variable.
+
+### Three distances on one machine
+
+Two points establish that recency exists; they cannot show how it behaves. The
+middle point puts two filler units, 13 Galactica tokens (checked with the
+tokenizer), between the SMILES span and the soft prompts. Rather than add one
+laptop point to two cluster points, all three distances were rerun on the
+laptop, clean and with the SMILES shuffled, so no point in the curve carries a
+cross-machine difference. All six conditions saw the same 3300 molecules in the
+same order, and [`../distance_curve_local.py`](../distance_curve_local.py)
+bootstraps every contrast paired (2000 resamples).
+
+| SMILES position | Clean BLEU-2 | Cost of corrupting the SMILES | 95% CI | Cluster, §12 |
+|---|---:|---:|---|---:|
+| Adjacent, as shipped | 62.77 | 25.1% | [23.8, 26.4] | 23.9% |
+| 13 tokens away | 60.86 | 23.2% | [22.4, 24.2] |  |
+| 37 tokens away | 55.40 | 21.3% | [20.4, 22.3] | 21.3% |
+
+| Change | Points | 95% CI | |
+|---|---:|---|---|
+| 0 to 13 tokens | −1.8 pp | [−3.1, −0.7] | excludes 0 |
+| 13 to 37 tokens | −1.9 pp | [−2.6, −1.2] | excludes 0 |
+| 0 to 37 tokens | −3.7 pp | [−5.0, −2.5] | excludes 0 |
+
+The cost falls at every step and every paired change excludes zero. Over 37
+tokens it drops 3.7 points, about a tenth of a point per token. The first 13
+tokens cost about as much as the next 24, but a straight line through the end points
+predicts 23.8% at 13 tokens, inside that point's interval, so the data cannot
+tell a flattening curve from a line. Distance acts as a gradient, not a
+threshold.
+
+The two machines agree at 37 tokens, both 21.3%. At the adjacent point the
+laptop reads 25.1% against the cluster's 23.9%, which is why the laptop's drop
+over 37 tokens (3.7 points) is larger than the cluster's (2.6). The level moves
+by about a point across machines; the direction and the order of magnitude do
+not.
+
+In the shipped prompt the SMILES span ends where the eight graph soft prompts
+begin, so the graph sits eight tokens nearer the output than the end of the
+SMILES. At 0.1 points per token those eight tokens are worth under a point,
+against a gap of about 35 points between what corrupting each channel costs
+(the cluster figures above).
+That assumes the slope holds at short range, which cannot be tested without
+moving the graph, the manipulation that broke the model in §6. Within the range
+that can be measured, recency is steady, real and an order of magnitude too
+small to carry the result.
 
 ### The contamination control returned nothing
 
@@ -571,12 +617,12 @@ evidence. The eight conditions are seven distinct manipulations.
 **2. Position is confounded with modality, and the confound is small.** Closed
 rather than open, though not for free. Reordering the prompt (§6) destroyed the
 model and settled nothing. Displacing the SMILES 37 tokens instead (§12) reduces
-its contribution by 2.6 points of a 23.9% effect, and moves the graph's by 0.5 of
+its contribution by 2.6 points of a 23.9% effect and moves the graph's by 0.5 of
 a 58.9% one, taking the ratio between the channels from 2.46× to 2.74×. Both
 intervals exclude zero, so recency is real rather than absent; it is simply an
-order of magnitude too small to generate the dominance. The residual caveat is
-that one displacement at one distance is a two-point curve; `chebi_filler_mid2`
-would add a third.
+order of magnitude too small to generate the dominance. A third distance, with
+all three rerun on one machine (§12), shows it is a gradient: the cost falls by
+about 0.1 points per token. Every step's interval excludes zero.
 
 **3. The no-SMILES conditions are distribution shift, not information removal.**
 `graph_only` (2.42) and `shuffle_graph_only` (2.23) degenerate into
@@ -613,7 +659,7 @@ The cluster ran it to completion; see §8.
 
 **8. The transfer comparison rests on an unverified split.** Structural matching
 has closed the measurement half of this: §11 now matches rdkit-canonical SMILES,
-finds 49.25% contamination, and reports 28.45 on the clean subset. An earlier
+finds 49.25% contamination and reports 28.45 on the clean subset. An earlier
 draft matched captions, found 23.35%, and concluded the opposite about transfer.
 The two overlap sets nest exactly, so the correction was one of coverage rather
 than of method, but it is a reminder of how far a conservative proxy can be from
@@ -621,7 +667,7 @@ the quantity it stands in for.
 
 What remains open is whether PubChem324kV2 preserves the split the paper's 38.7
 was measured on. V2 postdates publication, the v1 dataset is gone from Hugging
-Face, and the release documents no changelog, so the 28.45 against 38.7
+Face and the release documents no changelog, so the 28.45 against 38.7
 comparison is approximate in a way no local work can fix.
 [`../NOTES.md`](../NOTES.md) sets out what I could and could not establish.
 

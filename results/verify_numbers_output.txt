@@ -7,6 +7,8 @@ sec 6 default order              empty              0         0  RESULTS.md sec 
 sec 6 graph prompts first        bleu2           0.01      0.01  README.md, RESULTS.md sec 6
 sec 6 graph prompts first        words         123.00    122.97  RESULTS.md sec 6
 sec 6 graph prompts first        empty             55        55  RESULTS.md sec 6
+sec 12 curve, 13 tokens, clean   bleu2          60.86     60.86  README.md, RESULTS.md sec 12
+sec 12 curve, 37 tokens, clean   bleu2          55.40     55.40  README.md, RESULTS.md sec 12
 sec 12 baseline generation       words          42.40     42.40  RESULTS.md sec 12
 sec 12 filler between            words          37.30     37.25  RESULTS.md sec 12
 sec 12 filler between            empty              0         0  RESULTS.md sec 12
@@ -18,7 +20,7 @@ PubChem refs over 512 tokens     long_refs         22        22  README.md limit
 PubChem transfer, as scored      bleu2          49.04     49.04  README.md
 PubChem transfer, 512 cut        bleu2_trunc     50.41     50.41  README.md limitations
 
-All 18 checks reproduce. Every documented number without other saved
+All 20 checks reproduce. Every documented number without other saved
 provenance is derivable from the prediction dumps in this repository.
 
 Two figures in RESULTS.md section 6 are not covered here: the 63.10

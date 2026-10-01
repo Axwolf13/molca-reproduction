@@ -1,0 +1,72 @@
+{
+  "n": 3300,
+  "resamples": 2000,
+  "seed": 0,
+  "points": [
+    {
+      "filler_units": 0,
+      "tokens": 0,
+      "clean_bleu2": 62.77,
+      "smiles_cost_pct": 25.07,
+      "ci95": [
+        23.81,
+        26.45
+      ],
+      "cluster_cost_pct": 23.9
+    },
+    {
+      "filler_units": 2,
+      "tokens": 13,
+      "clean_bleu2": 60.86,
+      "smiles_cost_pct": 23.24,
+      "ci95": [
+        22.36,
+        24.16
+      ],
+      "cluster_cost_pct": null
+    },
+    {
+      "filler_units": 6,
+      "tokens": 37,
+      "clean_bleu2": 55.4,
+      "smiles_cost_pct": 21.33,
+      "ci95": [
+        20.41,
+        22.27
+      ],
+      "cluster_cost_pct": 21.3
+    }
+  ],
+  "changes": [
+    {
+      "from_tokens": 0,
+      "to_tokens": 13,
+      "pp": -1.84,
+      "ci95": [
+        -3.12,
+        -0.68
+      ],
+      "excludes_zero": true
+    },
+    {
+      "from_tokens": 13,
+      "to_tokens": 37,
+      "pp": -1.91,
+      "ci95": [
+        -2.57,
+        -1.24
+      ],
+      "excludes_zero": true
+    },
+    {
+      "from_tokens": 0,
+      "to_tokens": 37,
+      "pp": -3.74,
+      "ci95": [
+        -4.97,
+        -2.51
+      ],
+      "excludes_zero": true
+    }
+  ]
+}

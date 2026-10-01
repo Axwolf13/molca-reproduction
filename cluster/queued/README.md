@@ -43,6 +43,12 @@ Expect the SMILES cost to land between 21.3% and 23.9% if distance acts smoothly
 and outside that range if the 37-token result was a threshold effect rather than
 a gradient.
 
+**Ran on the laptop instead (1 October 2026),** together with the other two
+distances, so the curve carries no cross-machine difference. The SMILES costs
+23.2% at 13 tokens, between the laptop's own 25.1% adjacent and 21.3% at 37: a
+gradient, as predicted for smooth distance effects. The cluster jobs above stay
+unrun. Section 12 has the full curve.
+
 ## Why `186488` is filed as a failure rather than a result
 
 It was designed as the gate for the whole distance experiment, on the reasoning

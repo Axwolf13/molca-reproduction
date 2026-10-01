@@ -25,7 +25,7 @@ molecule's graph. It described the graph.
 [MolCA](https://github.com/acharkq/MolCA) (Liu et al., EMNLP 2023) wires a 2D
 molecular graph encoder into Galactica through a Q-Former cross-modal projector.
 Its Table 5a measures what each input view contributes during *training*,
-reporting 34.6 BLEU-2 for SMILES alone, 34.5 for the graph alone, and 38.7 for
+reporting 34.6 BLEU-2 for SMILES alone, 34.5 for the graph alone and 38.7 for
 both together. Read on its own, that table suggests two interchangeable views
 combining for a modest gain.
 
@@ -34,7 +34,7 @@ The paper never measures what the trained model does with those two views at
 the released checkpoint, feeding each molecule its own SMILES string alongside a
 different molecule's graph.
 
-### Coverage, and what the release puts out of reach
+### Coverage and what the release puts out of reach
 
 | Dataset | What I ran | Why |
 |---|---|---|
@@ -64,7 +64,7 @@ Running the released checkpoint over the full 3300-molecule CheBI-20 test split:
 | RTX 4060 Laptop (local) | **62.77** |
 
 Three measurements of one checkpoint span 0.77 BLEU-2 across two GPU
-generations, two Python versions, two torch majors, and two transformers
+generations, two Python versions, two torch majors and two transformers
 versions. Agreement runs deeper than the score: **93.8% of the 3300 captions are
 character-identical** between the two machines. Because I also hand-vendored LAVIS on the laptop rather than
 installing it, the software stack differs substantially between the two
@@ -168,6 +168,20 @@ ratio between the channels moves from 2.46× to 2.74×, so a recency account wou
 have to produce a 2.5× dominance out of an effect worth a tenth of the weaker
 channel.
 
+A third distance turns the two points into a curve. All three were rerun on the
+laptop so that no point carries a cross-machine difference:
+
+| SMILES position | Clean | Corrupting the SMILES costs | 95% CI |
+|---|---:|---:|---|
+| Adjacent, as shipped | 62.77 | 25.1% | [23.8, 26.4] |
+| 13 tokens away | 60.86 | 23.2% | [22.4, 24.2] |
+| 37 tokens away | 55.40 | 21.3% | [20.4, 22.3] |
+
+The cost falls at every step and every paired change excludes zero: recency is a
+gradient, about 0.1 points per token. In the shipped prompt the graph sits eight
+tokens nearer the output than the end of the SMILES. At that rate those eight
+tokens are worth under a point, against a gap of about 35 between the channels.
+
 ### The Paper's Own Contamination Filter Holds
 
 Every number here comes from a checkpoint pretrained on PubChem324k and tested on
@@ -176,7 +190,7 @@ test molecules is load-bearing for the reproduction itself. Checked on canonical
 structures: **zero of 6601 ChEBI-20 valid/test molecules appear among the 298,010
 pretrain structures.** Exact, not approximate.
 
-Full numbers, controls, and limitations live in
+Full numbers, controls and limitations live in
 **[results/RESULTS.md](results/RESULTS.md)**.
 
 ## Repository Layout
@@ -189,6 +203,7 @@ Full numbers, controls, and limitations live in
 | `cross_stack_agreement.py` | Caption-level agreement between the two machines |
 | `transfer_overlap.py` | ChEBI-20 contamination inside the PubChem324kV2 test split |
 | `distance_test.py` | Separates modality from recency by displacing the SMILES |
+| `distance_curve_local.py` | The same test at three distances, all on one machine |
 | `NOTES.md` | The one question about the transfer run I could not close |
 | `run_eval.sh` | A single condition |
 | `run_queue.sh` | Several conditions back to back |
@@ -203,9 +218,9 @@ Full numbers, controls, and limitations live in
 | `vendor/lavis/` | Minimal vendored LAVIS, BSD-3-Clause, licence retained |
 | `cluster/` | The parallel HTCondor runs: predictions, logs, submit files, retrieval |
 | `verify_numbers.py` | Re-derives the documented figures that no saved output records |
-| `cluster/queued/` | Prepared but unrun: the structure-overlap dump and the distance experiment |
+| `cluster/queued/` | The 13-token distance pair as cluster jobs, never submitted: it ran on the laptop instead |
 
-Checkpoints, model weights, datasets, and the virtualenv stay out of the
+Checkpoints, model weights, datasets and the virtualenv stay out of the
 repository. `ENVIRONMENT.md` explains how to obtain each one.
 
 ## Reproducing
